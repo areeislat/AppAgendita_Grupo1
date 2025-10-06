@@ -11,10 +11,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.R
+import com.example.appagendita_grupo1.navigation.NavEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeMedium() {
+fun HomeMedium(onNavigate: (NavEvent) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -33,7 +34,6 @@ fun HomeMedium() {
                 .padding(24.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Panel izquierdo
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -42,26 +42,20 @@ fun HomeMedium() {
             ) {
                 Icon(
                     imageVector = Icons.Filled.Star,
-                    contentDescription = "Ícono estrella",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(72.dp)
                 )
-                Text(
-                    text = "¡Bienvenido a tu Agendita Virtual!",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Button(
-                    onClick = { /* acción futura */ },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSecondary
-                    )
-                ) {
-                    Text("Apachurrame")
+                Text("¡Bienvenido a tu Agendita Virtual!", style = MaterialTheme.typography.headlineSmall)
+
+                Button(onClick = { onNavigate(NavEvent.ToDetail) }) {
+                    Text("Ir a Detalle")
+                }
+                OutlinedButton(onClick = { onNavigate(NavEvent.ToSettings) }) {
+                    Text("Ir a Ajustes")
                 }
             }
 
-            // Panel derecho (imagen más grande)
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo App",
