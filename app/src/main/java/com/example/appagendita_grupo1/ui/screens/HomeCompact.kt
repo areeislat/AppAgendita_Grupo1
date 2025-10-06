@@ -1,41 +1,34 @@
-package com.example.appagendita_grupo1.ui.theme
-
+package com.example.appagendita_grupo1.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.appagendita_grupo1.R
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Icon
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
-    Scaffold (
+fun HomeCompact() {
+    Scaffold(
         topBar = {
-            TopAppBar(title = {Text("Mi Agendita Virtual",
-                color = MaterialTheme.colorScheme.primary) },
+            TopAppBar(
+                title = {
+                    Text(
+                        "Mi Agendita Virtual",
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )) //uso de colores, parte 2
+                )
+            )
         }
     ) { innerPadding ->
         Column(
@@ -43,24 +36,24 @@ fun HomeScreen() {
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp) //Espaciado uniforme de parte 2
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = "Ícono estrella",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(64.dp)
-            ) // muestra una estr
-
+            )
             Text(text = "¡Bienvenido a tu Agendita Virtual!")
-            Button(onClick = {/* accion futura */ },
+            Button(
+                onClick = { /* acción futura */ },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary, //para el fondo del boton
-                    contentColor = MaterialTheme.colorScheme.onSecondary //para el color del texto o icono
-                )) {
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
                 Text("Apachurrame")
             }
-
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo App",
@@ -71,11 +64,4 @@ fun HomeScreen() {
             )
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen()
 }

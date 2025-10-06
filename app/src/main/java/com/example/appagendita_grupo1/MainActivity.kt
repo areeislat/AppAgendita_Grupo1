@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
-import com.example.appagendita_grupo1.ui.theme.HomeScreen /* importa el composable */
-
+import com.example.appagendita_grupo1.ui.screens.HomeScreen
+import com.example.appagendita_grupo1.ui.utils.calculateAppWidthSize  // ← NUEVO import
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,8 +14,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppAgendita_Grupo1Theme {
-                /* muestra la pantalla principal del proyecto */
-                HomeScreen()
+                val appWidthSize = calculateAppWidthSize(this)   // aca usamos utils
+                HomeScreen(appWidthSize)                         // aca lo pasamos a la fachada
             }
         }
     }
