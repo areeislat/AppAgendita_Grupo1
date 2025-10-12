@@ -13,6 +13,8 @@ import com.example.appagendita_grupo1.navigation.NavEvent
 import com.example.appagendita_grupo1.navigation.Routes
 import com.example.appagendita_grupo1.ui.screens.DetailScreen
 import com.example.appagendita_grupo1.ui.screens.HomeScreen
+import com.example.appagendita_grupo1.ui.screens.LoginScreen
+import com.example.appagendita_grupo1.ui.screens.RegistrationScreen
 import com.example.appagendita_grupo1.ui.screens.SettingsScreen
 import com.example.appagendita_grupo1.ui.screens.SplashScreen
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
@@ -45,12 +47,35 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(Routes.Splash.route) {
                         SplashScreen(onContinue = {
-                            navController.navigate(Routes.Home.route) {
+                            navController.navigate(Routes.Login.route) {
                                 popUpTo(Routes.Splash.route) {
                                     inclusive = true
                                 }
                             }
                         })
+                    }
+                    composable(Routes.Login.route) {
+                        LoginScreen(
+                            onLoginSuccess = {
+                                navController.navigate(Routes.Home.route) {
+                                    popUpTo(Routes.Login.route) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onNavigateToRegistration = { navController.navigate(Routes.Registration.route) }
+                        )
+                    }
+                    composable(Routes.Registration.route) {
+                        RegistrationScreen(
+                            onRegistrationSuccess = {
+                                navController.navigate(Routes.Login.route) {
+                                    popUpTo(Routes.Registration.route) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        )
                     }
                     composable(Routes.Home.route) {
                         HomeScreen(
