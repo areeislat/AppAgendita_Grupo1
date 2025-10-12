@@ -63,7 +63,14 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             },
-                            onNavigateToRegistration = { navController.navigate(Routes.Registration.route) }
+                            onNavigateToRegistration = { navController.navigate(Routes.Registration.route) },
+                            onNavigateToSplash = {
+                                navController.navigate(Routes.Splash.route) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
                         )
                     }
                     composable(Routes.Registration.route) {
@@ -71,6 +78,14 @@ class MainActivity : ComponentActivity() {
                             onRegistrationSuccess = {
                                 navController.navigate(Routes.Login.route) {
                                     popUpTo(Routes.Registration.route) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onNavigateToSplash = {
+                                navController.navigate(Routes.Splash.route) {
+                                    // This logic clears the back stack up to the start destination
+                                    popUpTo(navController.graph.startDestinationId) {
                                         inclusive = true
                                     }
                                 }

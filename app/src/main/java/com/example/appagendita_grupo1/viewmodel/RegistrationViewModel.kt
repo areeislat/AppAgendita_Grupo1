@@ -4,39 +4,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.appagendita_grupo1.model.RegistrationState
 
 class RegistrationViewModel : ViewModel() {
-
     var state by mutableStateOf(RegistrationState())
         private set
 
-    fun onNameChange(name: String) {
-        state = state.copy(name = name, nameError = null)
-    }
-
     fun onEmailChange(email: String) {
-        state = state.copy(email = email, emailError = null)
+        state = state.copy(email = email)
     }
 
     fun onPasswordChange(password: String) {
-        state = state.copy(password = password, passwordError = null)
+        state = state.copy(password = password)
+    }
+
+    fun onConfirmPasswordChange(confirmPassword: String) {
+        state = state.copy(confirmPassword = confirmPassword)
     }
 
     fun validate(): Boolean {
-        var hasError = false
-        if (state.name.isBlank()) {
-            state = state.copy(nameError = "Please enter your name")
-            hasError = true
-        }
-        if (state.email.isBlank()) {
-            state = state.copy(emailError = "Please enter your email")
-            hasError = true
-        }
-        if (state.password.isBlank()) {
-            state = state.copy(passwordError = "Please enter your password")
-            hasError = true
-        }
-        return !hasError
+        state = state.copy(
+            emailError = if (state.email.isBlank()) "El email no puede estar vacío" else null,
+            passwordError = if (state.password.isBlank()) "La contraseña no puede estar vacía" else null,
+            confirmPasswordError = if (state.password != state.confirmPassword) "Las contraseñas no coinciden" else null
+        )
+        return state.emailError == null && state.passwordError == null && state.confirmPasswordError == null
     }
 }

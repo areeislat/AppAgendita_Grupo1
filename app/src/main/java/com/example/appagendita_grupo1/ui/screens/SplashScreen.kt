@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appagendita_grupo1.R
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
+import com.example.appagendita_grupo1.ui.theme.PoppinsFamily
 
 // Colores que se usan
 val PurpleBlue = Color(0xFF7B61FF) // Color principal para el botón y el título
@@ -69,7 +70,7 @@ fun SplashScreen(onContinue: () -> Unit) {
                 Text(
                     text = "Agendita",
                     color = PurpleBlue,
-                    fontSize = 42.sp,
+                    fontSize = 45.sp,
                     fontFamily = PollerOneRegular,
                     fontWeight = FontWeight.Bold // Usa la fuente personalizada si la tienes
                 )
@@ -78,10 +79,11 @@ fun SplashScreen(onContinue: () -> Unit) {
 
                 // Subtítulo "Gestiona tus ideas"
                 Text(
-                    text = "Gestiona\ntu día a día",
+                    text = "Gestiona\n\ntu día a día",
                     color = DarkText,
-                    fontSize = 36.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 38.sp,
+                    fontFamily = PoppinsFamily,
+                    fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center
                 )
 
