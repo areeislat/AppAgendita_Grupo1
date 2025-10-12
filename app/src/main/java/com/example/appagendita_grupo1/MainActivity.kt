@@ -14,6 +14,7 @@ import com.example.appagendita_grupo1.navigation.Routes
 import com.example.appagendita_grupo1.ui.screens.DetailScreen
 import com.example.appagendita_grupo1.ui.screens.HomeScreen
 import com.example.appagendita_grupo1.ui.screens.SettingsScreen
+import com.example.appagendita_grupo1.ui.screens.SplashScreen
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
 import com.example.appagendita_grupo1.ui.utils.calculateAppWidthSize
 import com.example.appagendita_grupo1.viewmodel.NavigationViewModel
@@ -40,8 +41,17 @@ class MainActivity : ComponentActivity() {
                 // grafico de navegación
                 NavHost(
                     navController = navController,
-                    startDestination = Routes.Home.route
+                    startDestination = Routes.Splash.route
                 ) {
+                    composable(Routes.Splash.route) {
+                        SplashScreen(onContinue = {
+                            navController.navigate(Routes.Home.route) {
+                                popUpTo(Routes.Splash.route) {
+                                    inclusive = true
+                                }
+                            }
+                        })
+                    }
                     composable(Routes.Home.route) {
                         HomeScreen(
                             appWidthSize = appWidthSize,
