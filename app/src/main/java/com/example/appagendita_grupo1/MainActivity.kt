@@ -82,13 +82,8 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             },
-                            onNavigateToSplash = {
-                                navController.navigate(Routes.Splash.route) {
-                                    // This logic clears the back stack up to the start destination
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        inclusive = true
-                                    }
-                                }
+                            onNavigateToLogin = {
+                                navController.popBackStack()
                             }
                         )
                     }
