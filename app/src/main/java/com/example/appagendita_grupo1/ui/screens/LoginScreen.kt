@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appagendita_grupo1.R
 import com.example.appagendita_grupo1.viewmodel.LoginViewModel
-
+import com.example.appagendita_grupo1.ui.theme.PoppinsFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +64,8 @@ fun LoginScreen(
             Text(
                 text = "Ingresar",
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+                fontFamily = PoppinsFamily,
+                fontWeight = FontWeight.Medium,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -75,7 +76,8 @@ fun LoginScreen(
         Text(
             text = "Bienvenido",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
+            fontFamily = PoppinsFamily,
+            fontWeight = FontWeight.SemiBold
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -83,6 +85,8 @@ fun LoginScreen(
         Text(
             text = "Por favor, ingrese su dirección de correo electrónico y contraseña para iniciar sesión.",
             fontSize = 14.sp,
+            fontFamily = PoppinsFamily,
+            fontWeight = FontWeight.Normal,
             color = Color.Gray
         )
 
@@ -94,7 +98,7 @@ fun LoginScreen(
             label = { Text("Ingrese su email") },
             isError = state.emailError != null,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = accent,
                 unfocusedIndicatorColor = Color.Gray,
@@ -115,7 +119,7 @@ fun LoginScreen(
             isError = state.passwordError != null,
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = accent,
                 unfocusedIndicatorColor = Color.Gray,
@@ -135,6 +139,8 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .clickable { /* Handle forgot password */ },
             textAlign = TextAlign.End,
+            fontFamily = PoppinsFamily,
+            fontWeight = FontWeight.Medium,
             color = accent
         )
 
@@ -149,7 +155,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = accent,
                 contentColor = Color.White
@@ -175,16 +181,16 @@ fun LoginScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = R.drawable.logo_apple),
                 contentDescription = "Apple Login",
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(50.dp)
                     .clip(CircleShape)
                     .clickable { /* Handle Apple login */ }
             )
-            Spacer(modifier = Modifier.size(32.dp))
+            Spacer(modifier = Modifier.size(20.dp))
             Image(
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = R.drawable.logo_google),
                 contentDescription = "Google Login",
                 modifier = Modifier
                     .size(40.dp)
@@ -202,6 +208,8 @@ fun LoginScreen(
             Text("¿Aún no te registras? ")
             Text(
                 text = "Registrarse",
+                fontFamily = PoppinsFamily,
+                fontWeight = FontWeight.Medium,
                 modifier = Modifier.clickable(onClick = onNavigateToRegistration),
                 color = accent
             )

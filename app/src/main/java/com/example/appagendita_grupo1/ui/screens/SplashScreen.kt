@@ -72,7 +72,7 @@ fun SplashScreen(onContinue: () -> Unit) {
                     color = PurpleBlue,
                     fontSize = 45.sp,
                     fontFamily = PollerOneRegular,
-                    fontWeight = FontWeight.Bold // Usa la fuente personalizada si la tienes
+                    fontWeight = FontWeight.Normal
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
