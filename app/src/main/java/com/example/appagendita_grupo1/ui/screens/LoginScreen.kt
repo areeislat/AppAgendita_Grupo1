@@ -100,6 +100,11 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                unfocusedLabelColor = Color.DarkGray,
+                cursorColor = Color.Black,
                 focusedIndicatorColor = accent,
                 unfocusedIndicatorColor = Color.Gray,
                 focusedContainerColor = Color.Transparent,
@@ -121,6 +126,11 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                unfocusedLabelColor = Color.DarkGray,
+                cursorColor = Color.Black,
                 focusedIndicatorColor = accent,
                 unfocusedIndicatorColor = Color.Gray,
                 focusedContainerColor = Color.Transparent,
