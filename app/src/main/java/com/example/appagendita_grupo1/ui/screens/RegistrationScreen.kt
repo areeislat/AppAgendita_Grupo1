@@ -21,6 +21,7 @@ import com.example.appagendita_grupo1.viewmodel.RegistrationViewModel
 @Composable
 fun RegistrationScreen(
     onRegistrationSuccess: () -> Unit,
+    onNavigateToSplash: () -> Unit, // Added this parameter
     viewModel: RegistrationViewModel = viewModel()
 ) {
     val state = viewModel.state
@@ -33,20 +34,9 @@ fun RegistrationScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
-            value = state.name,
-            onValueChange = { viewModel.onNameChange(it) },
-            label = { Text("Name") },
-            isError = state.nameError != null,
-            modifier = Modifier.fillMaxWidth()
-        )
-        state.nameError?.let {
-            Text(text = it)
-        }
-
-        OutlinedTextField(
             value = state.email,
             onValueChange = { viewModel.onEmailChange(it) },
-            label = { Text("Email") },
+            label = { Text("Ingrese su email") },
             isError = state.emailError != null,
             modifier = Modifier.fillMaxWidth()
         )
@@ -57,12 +47,24 @@ fun RegistrationScreen(
         OutlinedTextField(
             value = state.password,
             onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text("Password") },
+            label = { Text("Ingrese su contraseña") },
             isError = state.passwordError != null,
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
         state.passwordError?.let {
+            Text(text = it)
+        }
+
+        OutlinedTextField(
+            value = state.confirmPassword,
+            onValueChange = { viewModel.onConfirmPasswordChange(it) },
+            label = { Text("Confirmar contraseña") },
+            isError = state.confirmPasswordError != null,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
+        state.confirmPasswordError?.let {
             Text(text = it)
         }
 
@@ -74,7 +76,14 @@ fun RegistrationScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Register")
+            Text("Registrarse")
+        }
+
+        Button(
+            onClick = onNavigateToSplash, // Using the new parameter
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Volver a Inicio")
         }
     }
 }
