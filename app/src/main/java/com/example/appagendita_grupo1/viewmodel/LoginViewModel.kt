@@ -22,11 +22,11 @@ class LoginViewModel : ViewModel() {
     fun validate(): Boolean {
         var hasError = false
         if (state.email.isBlank()) {
-            state = state.copy(emailError = "Please enter your email")
+            state = state.copy(emailError = "Por favor, ingresa tu email")
             hasError = true
         }
         if (state.password.isBlank()) {
-            state = state.copy(passwordError = "Please enter your password")
+            state = state.copy(passwordError = "Por favor, ingresa tu contraseña")
             hasError = true
         }
         return !hasError
