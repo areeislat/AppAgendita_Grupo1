@@ -20,15 +20,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-// Placeholder color
-val PurplePrimary = Color(0xFF7B61FF)
-
+// P
 @Composable
 fun ProjectHighlightCard(onClick: () -> Unit) {
   Surface(
     onClick = onClick,
     shape = RoundedCornerShape(20.dp),
-    color = PurplePrimary,
+    color = MaterialTheme.colorScheme.primary,
     shadowElevation = 0.dp,
     tonalElevation = 0.dp,
     modifier = Modifier

@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.appagendita_grupo1.ui.screens.home.components.Bg
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomAction
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomActionsSheet
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomSheetHandle
@@ -37,10 +36,11 @@ import com.example.appagendita_grupo1.ui.screens.home.components.HomeBottomBar
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeTopHeader
 import com.example.appagendita_grupo1.ui.screens.home.components.ProgressTaskCard
 import com.example.appagendita_grupo1.ui.screens.home.components.ProjectHighlightCard
-import com.example.appagendita_grupo1.ui.screens.home.components.PurplePrimary
 import com.example.appagendita_grupo1.ui.screens.home.components.SectionHeader
 import com.example.appagendita_grupo1.ui.screens.home.components.TitleBlock
 import com.example.appagendita_grupo1.ui.screens.home.components.sampleTasks
+import com.example.appagendita_grupo1.ui.theme.Bg
+import com.example.appagendita_grupo1.ui.theme.PurplePrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

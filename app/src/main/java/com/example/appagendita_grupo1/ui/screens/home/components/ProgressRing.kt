@@ -17,10 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.ui.theme.CardStroke
 import com.example.appagendita_grupo1.ui.theme.NavyText
-
-// Placeholder colors
-val BlueAccent = Color(0xFF4C7BFF)
-
+import com.example.appagendita_grupo1.ui.theme.BlueAccent
 @Composable
 fun ProgressRing(percentage: Int, size: Dp = 48.dp, stroke: Dp = 6.dp) {
   Box(Modifier.size(size), contentAlignment = Alignment.Center) {

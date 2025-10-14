@@ -27,17 +27,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.ui.theme.CardStroke
 import com.example.appagendita_grupo1.ui.theme.NavyText
 import com.example.appagendita_grupo1.ui.theme.PurplePrimary
+import com.example.appagendita_grupo1.ui.theme.Bg
 
 // Placeholder colors
 val SheetHandle = Color(0xFFD9D9D9)
-val Bg = Color(0xFFF7F8FA)
-
-data class BottomAction(val icon: ImageVector, val label: String, val onClick: () -> Unit)
 
 @Composable
 fun BottomSheetHandle() {
