@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -12,15 +14,15 @@ import androidx.navigation.compose.rememberNavController
 import com.example.appagendita_grupo1.navigation.NavEvent
 import com.example.appagendita_grupo1.navigation.Routes
 import com.example.appagendita_grupo1.ui.screens.DetailScreen
-import com.example.appagendita_grupo1.ui.screens.HomeScreen
+import com.example.appagendita_grupo1.ui.screens.home.HomeScreen
 import com.example.appagendita_grupo1.ui.screens.LoginScreen
 import com.example.appagendita_grupo1.ui.screens.RegistrationScreen
 import com.example.appagendita_grupo1.ui.screens.SettingsScreen
 import com.example.appagendita_grupo1.ui.screens.SplashScreen
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
-import com.example.appagendita_grupo1.ui.utils.calculateAppWidthSize
 import com.example.appagendita_grupo1.viewmodel.NavigationViewModel
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,8 +30,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AppAgendita_Grupo1Theme {
-                //helper composable para tamaño de pantalla (recibe Activity)
-                val appWidthSize = calculateAppWidthSize(this@MainActivity)
+                val windowSize = calculateWindowSizeClass(this@MainActivity)
 
                 // Nav + VM
                 val navController = rememberNavController()
@@ -43,29 +44,29 @@ class MainActivity : ComponentActivity() {
                 // grafico de navegación
                 NavHost(
                     navController = navController,
-                    startDestination = Routes.Splash.route
+                    startDestination = Routes.Splash
                 ) {
-                    composable(Routes.Splash.route) {
+                    composable(Routes.Splash) {
                         SplashScreen(onContinue = {
-                            navController.navigate(Routes.Login.route) {
-                                popUpTo(Routes.Splash.route) {
+                            navController.navigate(Routes.Login) {
+                                popUpTo(Routes.Splash) {
                                     inclusive = true
                                 }
                             }
                         })
                     }
-                    composable(Routes.Login.route) {
+                    composable(Routes.Login) {
                         LoginScreen(
                             onLoginSuccess = {
-                                navController.navigate(Routes.Home.route) {
-                                    popUpTo(Routes.Login.route) {
+                                navController.navigate(Routes.Home) {
+                                    popUpTo(Routes.Login) {
                                         inclusive = true
                                     }
                                 }
                             },
-                            onNavigateToRegistration = { navController.navigate(Routes.Registration.route) },
+                            onNavigateToRegistration = { navController.navigate(Routes.Registration) },
                             onNavigateToSplash = {
-                                navController.navigate(Routes.Splash.route) {
+                                navController.navigate(Routes.Splash) {
                                     popUpTo(navController.graph.startDestinationId) {
                                         inclusive = true
                                     }
@@ -73,11 +74,11 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                    composable(Routes.Registration.route) {
+                    composable(Routes.Registration) {
                         RegistrationScreen(
                             onRegistrationSuccess = {
-                                navController.navigate(Routes.Login.route) {
-                                    popUpTo(Routes.Registration.route) {
+                                navController.navigate(Routes.Login) {
+                                    popUpTo(Routes.Registration) {
                                         inclusive = true
                                     }
                                 }
@@ -87,19 +88,16 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                    composable(Routes.Home.route) {
-                        HomeScreen(
-                            appWidthSize = appWidthSize,
-                            onNavigate = go
-                        )
+                    composable(Routes.Home) {
+                        HomeScreen(windowSize = windowSize, onNavigate = go)
                     }
-                    composable(Routes.Detail.route) {
+                    composable(Routes.Detail) {
                         DetailScreen(
                             onBack = { go(NavEvent.Back) },
                             onNavigate = go
                         )
                     }
-                    composable(Routes.Settings.route) {
+                    composable(Routes.Settings) {
                         SettingsScreen(
                             onNavigate = go
                         )

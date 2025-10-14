@@ -9,9 +9,9 @@ class NavigationViewModel : ViewModel() {
 
     fun onNavEvent(navController: NavController, event: NavEvent) {
         when (event) {
-            NavEvent.ToHome     -> navController.navigate(Routes.Home.route)
-            NavEvent.ToDetail   -> navController.navigate(Routes.Detail.route)
-            NavEvent.ToSettings -> navController.navigate(Routes.Settings.route)
+            NavEvent.ToHome     -> navController.navigate(Routes.Home)
+            NavEvent.ToDetail   -> navController.navigate(Routes.Detail)
+            NavEvent.ToSettings -> navController.navigate(Routes.Settings)
             NavEvent.Back       -> navController.popBackStack()
         }
     }

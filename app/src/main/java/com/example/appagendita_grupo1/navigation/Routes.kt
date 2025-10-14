@@ -1,10 +1,10 @@
 package com.example.appagendita_grupo1.navigation
 
-sealed class Routes(val route: String) {
-    data object Splash : Routes("splash")
-    data object Home : Routes("home")
-    data object Detail : Routes("detail")
-    data object Settings : Routes("settings")
-    data object Login : Routes("login")
-    data object Registration : Routes("registration")
+object Routes {
+    const val Splash = "splash"
+    const val Login = "login"
+    const val Registration = "registration"
+    const val Home = "home"
+    const val Detail = "detail"
+    const val Settings = "settings"
 }
