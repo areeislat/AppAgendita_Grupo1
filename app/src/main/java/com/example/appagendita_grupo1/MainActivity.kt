@@ -13,6 +13,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.appagendita_grupo1.navigation.NavEvent
 import com.example.appagendita_grupo1.navigation.Routes
+import com.example.appagendita_grupo1.ui.screens.AddEventScreen
+import com.example.appagendita_grupo1.ui.screens.AddNoteScreen
+import com.example.appagendita_grupo1.ui.screens.AddTaskScreen
+import com.example.appagendita_grupo1.ui.screens.AddTeamScreen
 import com.example.appagendita_grupo1.ui.screens.DetailScreen
 import com.example.appagendita_grupo1.ui.screens.home.HomeScreen
 import com.example.appagendita_grupo1.ui.screens.LoginScreen
@@ -47,45 +51,19 @@ class MainActivity : ComponentActivity() {
                     startDestination = Routes.Splash
                 ) {
                     composable(Routes.Splash) {
-                        SplashScreen(onContinue = {
-                            navController.navigate(Routes.Login) {
-                                popUpTo(Routes.Splash) {
-                                    inclusive = true
-                                }
-                            }
-                        })
+                        SplashScreen(onContinue = { go(NavEvent.ToLogin) })
                     }
                     composable(Routes.Login) {
                         LoginScreen(
-                            onLoginSuccess = {
-                                navController.navigate(Routes.Home) {
-                                    popUpTo(Routes.Login) {
-                                        inclusive = true
-                                    }
-                                }
-                            },
-                            onNavigateToRegistration = { navController.navigate(Routes.Registration) },
-                            onNavigateToSplash = {
-                                navController.navigate(Routes.Splash) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        inclusive = true
-                                    }
-                                }
-                            }
+                            onLoginSuccess = { go(NavEvent.ToHome) },
+                            onNavigateToRegistration = { go(NavEvent.ToRegistration) },
+                            onNavigateToSplash = { go(NavEvent.BackToSplash) }
                         )
                     }
                     composable(Routes.Registration) {
                         RegistrationScreen(
-                            onRegistrationSuccess = {
-                                navController.navigate(Routes.Login) {
-                                    popUpTo(Routes.Registration) {
-                                        inclusive = true
-                                    }
-                                }
-                            },
-                            onNavigateToLogin = {
-                                navController.popBackStack()
-                            }
+                            onRegistrationSuccess = { go(NavEvent.ToLoginFromRegistration) },
+                            onNavigateToLogin = { go(NavEvent.Back) }
                         )
                     }
                     composable(Routes.Home) {
@@ -100,6 +78,29 @@ class MainActivity : ComponentActivity() {
                     composable(Routes.Settings) {
                         SettingsScreen(
                             onNavigate = go
+                        )
+                    }
+                    composable(Routes.AddTask) {
+                        AddTaskScreen(
+                            onBack = { go(NavEvent.Back) }
+                        )
+                    }
+                    composable(Routes.AddNote) {
+                        AddNoteScreen(
+                            onBack = { go(NavEvent.Back) },
+                            onNoteSaved = { go(NavEvent.Back) }
+                        )
+                    }
+                    composable(Routes.AddTeam) {
+                        AddTeamScreen(
+                            onBack = { go(NavEvent.Back) },
+                            onTeamSaved = { go(NavEvent.Back) }
+                        )
+                    }
+                    composable(Routes.AddEvent) {
+                        AddEventScreen(
+                            onBack = { go(NavEvent.Back) },
+                            onEventSaved = { go(NavEvent.Back) }
                         )
                     }
                 }

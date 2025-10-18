@@ -13,7 +13,11 @@ fun HomeScreen(
   when (windowSize.widthSizeClass) {
     WindowWidthSizeClass.Compact  -> HomeCompact(
         onOpenSettings = { onNavigate(NavEvent.ToSettings) },
-        onOpenDetail = { onNavigate(NavEvent.ToDetail) }
+        onOpenDetail = { onNavigate(NavEvent.ToDetail) },
+        onAddTask = { onNavigate(NavEvent.ToAddTask) },
+        onAddNote = { onNavigate(NavEvent.ToAddNote) },
+        onAddTeam = { onNavigate(NavEvent.ToAddTeam) },
+        onAddEvent = { onNavigate(NavEvent.ToAddEvent) }
     )
     //WindowWidthSizeClass.Medium   -> HomeMedium()
     //else                          -> HomeExpanded()

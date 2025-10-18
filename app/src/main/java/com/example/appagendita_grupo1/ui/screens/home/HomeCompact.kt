@@ -46,7 +46,11 @@ import com.example.appagendita_grupo1.ui.theme.PurplePrimary
 @Composable
 fun HomeCompact(
   onOpenSettings: () -> Unit = {},
-  onOpenDetail: () -> Unit = {}
+  onOpenDetail: () -> Unit = {},
+  onAddTask: () -> Unit = {},
+  onAddNote: () -> Unit = {},
+  onAddTeam: () -> Unit = {},
+  onAddEvent: () -> Unit = {}
 ) {
   val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
   var showSheet by remember { mutableStateOf(false) }
@@ -92,10 +96,10 @@ fun HomeCompact(
       BottomSheetHandle()
       BottomActionsSheet(
         actions = listOf(
-          BottomAction(Icons.Outlined.Edit, "Crear Nota") { /*...*/ },
-          BottomAction(Icons.Outlined.AddCircle, "Crear Tarea") { /*...*/ },
-          BottomAction(Icons.Outlined.Group, "Crear Equipo") { /*...*/ },
-          BottomAction(Icons.Outlined.Schedule, "Crear Evento") { /*...*/ },
+          BottomAction(Icons.Outlined.Edit, "Crear Nota", onAddNote),
+          BottomAction(Icons.Outlined.AddCircle, "Crear Tarea", onAddTask),
+          BottomAction(Icons.Outlined.Group, "Crear Equipo", onAddTeam),
+          BottomAction(Icons.Outlined.Schedule, "Crear Evento", onAddEvent),
         ),
         onClose = { showSheet = false }
       )
