@@ -9,13 +9,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,14 +32,21 @@ import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.ui.theme.AppTypography
 import com.example.appagendita_grupo1.ui.theme.CardStroke
 import com.example.appagendita_grupo1.ui.theme.NavyText
+import com.example.appagendita_grupo1.ui.theme.PurplePrimary
+import com.example.appagendita_grupo1.ui.screens.home.HomeSection
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun HomeTopHeader(onLeftClick: () -> Unit, onRightClick: () -> Unit) {
-    // Obtenemos la fecha actual formateada
+fun HomeTopHeader(
+    selectedSection: HomeSection,
+    onSectionSelected: (HomeSection) -> Unit,
+    onRightClick: () -> Unit
+) {
     val currentDate = getCurrentFormattedDate()
+    var expanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,8 +54,23 @@ fun HomeTopHeader(onLeftClick: () -> Unit, onRightClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        RoundIconButton(icon = Icons.Outlined.GridView, onClick = onLeftClick)
-        // Usamos la variable con la fecha actual
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RoundIconButton(icon = Icons.Outlined.GridView, onClick = { expanded = true })
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                HomeSection.entries.forEach { section ->
+                    DropdownMenuItem(
+                        text = { Text(section.label, style = AppTypography.bodyMedium, color = NavyText) },
+                        trailingIcon = if (section == selectedSection) {
+                            { Icon(imageVector = Icons.Outlined.Check, contentDescription = null, tint = PurplePrimary) }
+                        } else null,
+                        onClick = {
+                            expanded = false
+                            onSectionSelected(section)
+                        }
+                    )
+                }
+            }
+        }
         Text(currentDate, style = AppTypography.titleMedium)
         RoundIconButton(icon = Icons.Outlined.Notifications, onClick = onRightClick)
     }
@@ -92,7 +121,7 @@ fun RoundIconButton(icon: ImageVector, onClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun HomeTopHeaderPreview() {
-    HomeTopHeader(onLeftClick = {}, onRightClick = {})
+    HomeTopHeader(selectedSection = HomeSection.TodayTasks, onSectionSelected = {}, onRightClick = {})
 }
 
 @Preview(showBackground = true)
