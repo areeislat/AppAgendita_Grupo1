@@ -21,6 +21,10 @@ import com.example.appagendita_grupo1.ui.screens.DetailScreen
 import com.example.appagendita_grupo1.ui.screens.home.HomeScreen
 import com.example.appagendita_grupo1.ui.screens.LoginScreen
 import com.example.appagendita_grupo1.ui.screens.RegistrationScreen
+import com.example.appagendita_grupo1.ui.screens.AboutSettingsScreen
+import com.example.appagendita_grupo1.ui.screens.HelpSettingsScreen
+import com.example.appagendita_grupo1.ui.screens.LanguageSettingsScreen
+import com.example.appagendita_grupo1.ui.screens.SecuritySettingsScreen
 import com.example.appagendita_grupo1.ui.screens.SettingsScreen
 import com.example.appagendita_grupo1.ui.screens.SplashScreen
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
@@ -79,6 +83,18 @@ class MainActivity : ComponentActivity() {
                         SettingsScreen(
                             onNavigate = go
                         )
+                    }
+                    composable(Routes.SettingsSecurity) {
+                        SecuritySettingsScreen(onNavigate = go)
+                    }
+                    composable(Routes.SettingsHelp) {
+                        HelpSettingsScreen(onNavigate = go)
+                    }
+                    composable(Routes.SettingsLanguage) {
+                        LanguageSettingsScreen(onNavigate = go)
+                    }
+                    composable(Routes.SettingsAbout) {
+                        AboutSettingsScreen(onNavigate = go)
                     }
                     composable(Routes.AddTask) {
                         AddTaskScreen(

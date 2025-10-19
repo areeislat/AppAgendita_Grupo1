@@ -17,6 +17,10 @@ sealed interface NavEvent {
     // Home
     data object ToDetail : NavEvent
     data object ToSettings : NavEvent
+    data object ToSettingsSecurity : NavEvent
+    data object ToSettingsHelp : NavEvent
+    data object ToSettingsLanguage : NavEvent
+    data object ToSettingsAbout : NavEvent
     data object ToAddTask : NavEvent
     data object ToAddNote : NavEvent
     data object ToAddTeam : NavEvent
