@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomAction
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomActionsSheet
@@ -66,7 +67,11 @@ fun HomeCompact(
     },
     floatingActionButtonPosition = FabPosition.Center,
     bottomBar = {
-      HomeBottomBar(onSettingsClick = onOpenSettings)
+      HomeBottomBar(
+          isHomeSelected = true,
+          onSettingsClick = onOpenSettings,
+          onHomeClick = { /* Ya estás aquí */ }
+      )
     }
   ) { padding ->
     LazyColumn(
@@ -105,4 +110,10 @@ fun HomeCompact(
       )
     }
   }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeCompactPreview() {
+    HomeCompact()
 }

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appagendita_grupo1.viewmodel.AddEventViewModel
@@ -87,4 +88,10 @@ fun AddEventScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddEventScreenPreview() {
+    AddEventScreen(onBack = {}, onEventSaved = {})
 }

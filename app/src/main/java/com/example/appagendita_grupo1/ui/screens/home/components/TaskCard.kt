@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.ui.theme.CardStroke
 import com.example.appagendita_grupo1.ui.theme.NavyText
@@ -65,4 +66,16 @@ fun ProgressTaskCard(task: TaskUi, onClick: () -> Unit) {
       ProgressRing(percentage = task.progress)
     }
   }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SectionHeaderPreview() {
+    SectionHeader(title = "En progreso")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProgressTaskCardPreview() {
+    ProgressTaskCard(task = sampleTasks.first(), onClick = {})
 }

@@ -10,14 +10,26 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun HomeBottomBar(onSettingsClick: () -> Unit) {
+fun HomeBottomBar(
+    isHomeSelected: Boolean = false,
+    isSettingsSelected: Boolean = false,
+    onHomeClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {}
+) {
   BottomAppBar(containerColor = Color.White) {
-    NavigationBarItem(selected = true,  onClick = { }, icon = { Icon(Icons.Outlined.Home, null) })
+    NavigationBarItem(selected = isHomeSelected,  onClick = onHomeClick, icon = { Icon(Icons.Outlined.Home, null) })
     NavigationBarItem(selected = false, onClick = { }, icon = { Icon(Icons.Outlined.ChatBubbleOutline, null) })
     // El FAB ocupará el espacio central
     NavigationBarItem(selected = false, onClick = { }, icon = { Icon(Icons.Outlined.MoreHoriz, null) })
-    NavigationBarItem(selected = false, onClick = onSettingsClick, icon = { Icon(Icons.Outlined.Settings, null) })
+    NavigationBarItem(selected = isSettingsSelected, onClick = onSettingsClick, icon = { Icon(Icons.Outlined.Settings, null) })
   }
+}
+
+@Preview
+@Composable
+fun HomeBottomBarPreview() {
+    HomeBottomBar(isHomeSelected = true)
 }

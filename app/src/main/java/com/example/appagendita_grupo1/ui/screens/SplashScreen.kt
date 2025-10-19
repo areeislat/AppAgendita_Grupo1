@@ -124,7 +124,7 @@ fun SplashScreen(onContinue: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
-    AppAgendita_Grupo1Theme { // Usa tu tema para la previsualización
+    AppAgendita_Grupo1Theme {
         SplashScreen(onContinue = {})
     }
 }

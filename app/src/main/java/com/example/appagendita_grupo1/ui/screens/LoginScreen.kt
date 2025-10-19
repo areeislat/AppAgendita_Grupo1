@@ -19,10 +19,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appagendita_grupo1.R
+import com.example.appagendita_grupo1.ui.theme.AppTypography
 import com.example.appagendita_grupo1.viewmodel.LoginViewModel
 import com.example.appagendita_grupo1.ui.theme.PoppinsFamily
 
@@ -63,9 +65,7 @@ fun LoginScreen(
             }
             Text(
                 text = "Ingresar",
-                fontSize = 20.sp,
-                fontFamily = PoppinsFamily,
-                fontWeight = FontWeight.Medium,
+                style = AppTypography.titleMedium,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -225,4 +225,10 @@ fun LoginScreen(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    LoginScreen(onLoginSuccess = {}, onNavigateToRegistration = {}, onNavigateToSplash = {})
 }

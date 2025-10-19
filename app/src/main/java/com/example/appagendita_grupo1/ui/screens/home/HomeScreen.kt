@@ -19,7 +19,5 @@ fun HomeScreen(
         onAddTeam = { onNavigate(NavEvent.ToAddTeam) },
         onAddEvent = { onNavigate(NavEvent.ToAddEvent) }
     )
-    //WindowWidthSizeClass.Medium   -> HomeMedium()
-    //else                          -> HomeExpanded()
   }
 }
