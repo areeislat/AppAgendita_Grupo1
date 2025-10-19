@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomAction
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomActionsSheet
-import com.example.appagendita_grupo1.ui.screens.home.components.BottomSheetHandle
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeBottomBar
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeTopHeader
 import com.example.appagendita_grupo1.ui.screens.home.components.ProgressTaskCard
@@ -55,6 +54,7 @@ fun HomeCompact(
   var showSheet by remember { mutableStateOf(false) }
 
   Scaffold(
+    modifier = Modifier.padding(top = 16.dp),
     containerColor = Bg,
     topBar = { HomeTopHeader(onLeftClick = {}, onRightClick = onOpenSettings) },
     bottomBar = {
@@ -92,7 +92,6 @@ fun HomeCompact(
       containerColor = Color.White,
       shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
-      BottomSheetHandle()
       BottomActionsSheet(
         actions = listOf(
           BottomAction(Icons.Outlined.Edit, "Crear Nota", onAddNote),

@@ -82,7 +82,6 @@ class MainActivity : ComponentActivity() {
                             onOpenTeams = { },
                             onOpenSettings = { go(NavEvent.ToSettings) },
                             onOpenTasks = { },
-                            onOpenCreate = { go(NavEvent.ToAddTask) },
                             onNavigateHome = { go(NavEvent.Back) }
                         )
                     }
