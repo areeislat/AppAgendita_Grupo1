@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -100,7 +101,7 @@ fun HomeBottomBar(
       onClick = onCreateClick,
       modifier = Modifier
         .align(Alignment.TopCenter)
-        .offset(y = (-28).dp),
+        .offset(y = (18).dp),
       shape = CircleShape,
       containerColor = PurplePrimary,
       elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp, pressedElevation = 0.dp)

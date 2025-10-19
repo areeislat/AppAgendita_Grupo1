@@ -19,14 +19,25 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,12 +45,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.appagendita_grupo1.ui.screens.home.components.BottomAction
+import com.example.appagendita_grupo1.ui.screens.home.components.BottomActionsSheet
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeBottomBar
 import com.example.appagendita_grupo1.ui.theme.AppTypography
 import com.example.appagendita_grupo1.ui.theme.Bg
 import com.example.appagendita_grupo1.ui.theme.NavyText
 import com.example.appagendita_grupo1.ui.theme.PurplePrimary
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountScreen(
     name: String = "Alvart Ainstain",
@@ -51,10 +65,15 @@ fun AccountScreen(
     onOpenTeams: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
     onOpenTasks: () -> Unit = {},
-    onOpenCreate: () -> Unit = {},
-    onNavigateHome: () -> Unit = {}
+    onNavigateHome: () -> Unit = {},
+    onAddTask: () -> Unit = {},
+    onAddNote: () -> Unit = {},
+    onAddTeam: () -> Unit = {},
+    onAddEvent: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = Bg,
@@ -65,7 +84,7 @@ fun AccountScreen(
                 onEventsClick = onOpenEvents,
                 onTeamsClick = onOpenTeams,
                 onAccountClick = { /* Ya estás aquí */ },
-                onCreateClick = onOpenCreate
+                onCreateClick = { showSheet = true }
             )
         }
     ) { innerPadding ->
@@ -112,6 +131,24 @@ fun AccountScreen(
             }
 
             Spacer(modifier = Modifier.height(72.dp))
+        }
+    }
+    if (showSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSheet = false },
+            sheetState = sheetState,
+            containerColor = Color.White,
+            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        ) {
+            BottomActionsSheet(
+                actions = listOf(
+                    BottomAction(Icons.Outlined.Edit, "Crear Nota", onAddNote),
+                    BottomAction(Icons.Outlined.AddCircle, "Crear Tarea", onAddTask),
+                    BottomAction(Icons.Outlined.Group, "Crear Equipo", onAddTeam),
+                    BottomAction(Icons.Outlined.Schedule, "Crear Evento", onAddEvent),
+                ),
+                onClose = { showSheet = false }
+            )
         }
     }
 }
