@@ -16,8 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Event
-import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.FloatingActionButton
@@ -37,13 +37,13 @@ import com.example.appagendita_grupo1.ui.theme.PurplePrimary
 fun HomeBottomBar(
     modifier: Modifier = Modifier,
     isHomeSelected: Boolean = false,
+    isCalendarSelected: Boolean = false,
     isEventsSelected: Boolean = false,
-    isTeamsSelected: Boolean = false,
     isAccountSelected: Boolean = false,
     onHomeClick: () -> Unit = {},
-    onEventsClick: () -> Unit = {},
+    onCalendarClick: () -> Unit = {},
     onCreateClick: () -> Unit = {},
-    onTeamsClick: () -> Unit = {},
+    onEventsClick: () -> Unit = {},
     onAccountClick: () -> Unit = {}
 ) {
   Box(
@@ -74,17 +74,17 @@ fun HomeBottomBar(
               onClick = onHomeClick
             )
             BottomBarIcon(
+              imageVector = Icons.Outlined.DateRange,
+              contentDescription = "Notas del mes",
+              selected = isCalendarSelected,
+              onClick = onCalendarClick
+            )
+            Spacer(modifier = Modifier.width(64.dp))
+            BottomBarIcon(
               imageVector = Icons.Outlined.Event,
               contentDescription = "Eventos",
               selected = isEventsSelected,
               onClick = onEventsClick
-            )
-            Spacer(modifier = Modifier.width(64.dp))
-            BottomBarIcon(
-              imageVector = Icons.Outlined.Group,
-              contentDescription = "Equipos",
-              selected = isTeamsSelected,
-              onClick = onTeamsClick
             )
             BottomBarIcon(
               imageVector = Icons.Outlined.PersonOutline,

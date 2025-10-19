@@ -1,12 +1,6 @@
 package com.example.appagendita_grupo1.ui.screens.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddCircle
@@ -30,11 +24,10 @@ import com.example.appagendita_grupo1.ui.screens.home.components.BottomAction
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomActionsSheet
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeBottomBar
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeTopHeader
-import com.example.appagendita_grupo1.ui.screens.home.components.ProgressTaskCard
-import com.example.appagendita_grupo1.ui.screens.home.components.ProjectHighlightCard
-import com.example.appagendita_grupo1.ui.screens.home.components.SectionHeader
-import com.example.appagendita_grupo1.ui.screens.home.components.TitleBlock
-import com.example.appagendita_grupo1.ui.screens.home.components.sampleTasks
+import com.example.appagendita_grupo1.ui.screens.home.sections.EventsSection
+import com.example.appagendita_grupo1.ui.screens.home.sections.MonthlyNotesSection
+import com.example.appagendita_grupo1.ui.screens.home.sections.OverviewSection
+import com.example.appagendita_grupo1.ui.screens.home.sections.TodayTasksSection
 import com.example.appagendita_grupo1.ui.theme.Bg
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,8 +35,8 @@ import com.example.appagendita_grupo1.ui.theme.Bg
 fun HomeCompact(
   onOpenSettings: () -> Unit = {},
   onOpenDetail: () -> Unit = {},
+  onOpenMonthlyNotes: () -> Unit = {},
   onOpenEvents: () -> Unit = {},
-  onOpenTeams: () -> Unit = {},
   onOpenAccount: () -> Unit = {},
   onAddTask: () -> Unit = {},
   onAddNote: () -> Unit = {},
@@ -52,36 +45,62 @@ fun HomeCompact(
 ) {
   val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
   var showSheet by remember { mutableStateOf(false) }
+  var selectedSection by remember { mutableStateOf(HomeSection.Overview) }
 
   Scaffold(
     modifier = Modifier.padding(top = 16.dp),
     containerColor = Bg,
-    topBar = { HomeTopHeader(onLeftClick = {}, onRightClick = onOpenSettings) },
+    topBar = {
+      HomeTopHeader(
+        selectedSection = selectedSection,
+        onSectionSelected = { selectedSection = it },
+        onRightClick = onOpenSettings
+      )
+    },
     bottomBar = {
       HomeBottomBar(
-          isHomeSelected = true,
-          onHomeClick = { /* Ya estás aquí */ },
-          onEventsClick = onOpenEvents,
-          onTeamsClick = onOpenTeams,
-          onAccountClick = onOpenAccount,
-          onCreateClick = { showSheet = true }
+        isHomeSelected = selectedSection == HomeSection.Overview,
+        isCalendarSelected = selectedSection == HomeSection.MonthlyNotes,
+        isEventsSelected = selectedSection == HomeSection.Events,
+        onHomeClick = { selectedSection = HomeSection.Overview },
+        onCalendarClick = {
+          selectedSection = HomeSection.MonthlyNotes
+          onOpenMonthlyNotes()
+        },
+        onEventsClick = {
+          selectedSection = HomeSection.Events
+          onOpenEvents()
+        },
+        onAccountClick = onOpenAccount,
+        onCreateClick = { showSheet = true }
       )
     }
   ) { padding ->
-    LazyColumn(
-      modifier = Modifier
-        .fillMaxSize()
-        .padding(padding)
-        .padding(horizontal = 16.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-      item { TitleBlock() }
-      item { ProjectHighlightCard(onClick = onOpenDetail) }
-      item { SectionHeader(title = "En progreso") }
-      items(sampleTasks) { task ->
-        ProgressTaskCard(task = task, onClick = onOpenDetail)
-      }
-      item { Spacer(Modifier.height(88.dp)) } // para despegar del bottom bar
+    val contentModifier = Modifier
+      .padding(padding)
+      .padding(horizontal = 16.dp)
+
+    when (selectedSection) {
+      HomeSection.Overview -> OverviewSection(
+        modifier = contentModifier,
+        onOpenDetail = onOpenDetail
+      )
+
+      HomeSection.TodayTasks -> TodayTasksSection(
+        modifier = contentModifier,
+        onAddTask = onAddTask
+      )
+
+      HomeSection.MonthlyNotes -> MonthlyNotesSection(
+        modifier = contentModifier,
+        onAddNote = onAddNote
+      )
+
+      HomeSection.Events -> EventsSection(
+        modifier = contentModifier,
+        onAddEvent = onAddEvent,
+        onOpenDetail = onOpenDetail
+      )
     }
   }
 
