@@ -109,10 +109,10 @@ fun SettingsScreen(onNavigate: (NavEvent) -> Unit = {}) {
 
             Spacer(modifier = Modifier.height(16.dp)) // Espacio entre secciones
 
-            SettingsNavigationItem(title = "Seguridad") { /* TODO: Navegar a Seguridad */ }
-            SettingsNavigationItem(title = "Ayuda") { /* TODO: Navegar a Ayuda */ }
-            SettingsNavigationItem(title = "Lenguaje") { /* TODO: Navegar a Lenguaje */ }
-            SettingsNavigationItem(title = "Sobre nosotros") { /* TODO: Navegar a Sobre nosotros */ }
+            SettingsNavigationItem(title = "Seguridad") { onNavigate(NavEvent.ToSettingsSecurity) }
+            SettingsNavigationItem(title = "Ayuda") { onNavigate(NavEvent.ToSettingsHelp) }
+            SettingsNavigationItem(title = "Lenguaje") { onNavigate(NavEvent.ToSettingsLanguage) }
+            SettingsNavigationItem(title = "Sobre nosotros") { onNavigate(NavEvent.ToSettingsAbout) }
         }
     }
 }

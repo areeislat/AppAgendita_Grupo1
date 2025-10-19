@@ -33,6 +33,10 @@ class NavigationViewModel : ViewModel() {
             // Home
             NavEvent.ToDetail -> navController.navigate(Routes.Detail)
             NavEvent.ToSettings -> navController.navigate(Routes.Settings)
+            NavEvent.ToSettingsSecurity -> navController.navigate(Routes.SettingsSecurity)
+            NavEvent.ToSettingsHelp -> navController.navigate(Routes.SettingsHelp)
+            NavEvent.ToSettingsLanguage -> navController.navigate(Routes.SettingsLanguage)
+            NavEvent.ToSettingsAbout -> navController.navigate(Routes.SettingsAbout)
             NavEvent.ToAddTask -> navController.navigate(Routes.AddTask)
             NavEvent.ToAddNote -> navController.navigate(Routes.AddNote)
             NavEvent.ToAddTeam -> navController.navigate(Routes.AddTeam)
