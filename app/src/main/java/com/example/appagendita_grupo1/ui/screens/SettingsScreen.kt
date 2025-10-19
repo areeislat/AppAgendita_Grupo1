@@ -72,9 +72,11 @@ fun SettingsScreen(onNavigate: (NavEvent) -> Unit = {}) {
         },
         bottomBar = {
             HomeBottomBar(
-                isSettingsSelected = true,
                 onHomeClick = { onNavigate(NavEvent.ToHome) },
-                onSettingsClick = { /* Ya estás aquí */ }
+                onEventsClick = { },
+                onTeamsClick = { },
+                onAccountClick = { onNavigate(NavEvent.ToAccount) },
+                onCreateClick = { }
             )
         },
         containerColor = Color(0xFFF7F7F9) // Un fondo gris claro como en la imagen

@@ -11,6 +11,8 @@ object Routes {
     const val SettingsHelp = "settings_help"
     const val SettingsLanguage = "settings_language"
     const val SettingsAbout = "settings_about"
+    const val Account = "account"
+    const val AccountEdit = "account_edit"
     const val AddTask = "add_task"
     const val AddNote = "add_note"
     const val AddTeam = "add_team"

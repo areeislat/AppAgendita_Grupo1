@@ -13,20 +13,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.appagendita_grupo1.navigation.NavEvent
 import com.example.appagendita_grupo1.navigation.Routes
-import com.example.appagendita_grupo1.ui.screens.AddEventScreen
-import com.example.appagendita_grupo1.ui.screens.AddNoteScreen
-import com.example.appagendita_grupo1.ui.screens.AddTaskScreen
-import com.example.appagendita_grupo1.ui.screens.AddTeamScreen
-import com.example.appagendita_grupo1.ui.screens.DetailScreen
-import com.example.appagendita_grupo1.ui.screens.home.HomeScreen
-import com.example.appagendita_grupo1.ui.screens.LoginScreen
-import com.example.appagendita_grupo1.ui.screens.RegistrationScreen
 import com.example.appagendita_grupo1.ui.screens.AboutSettingsScreen
 import com.example.appagendita_grupo1.ui.screens.HelpSettingsScreen
 import com.example.appagendita_grupo1.ui.screens.LanguageSettingsScreen
 import com.example.appagendita_grupo1.ui.screens.SecuritySettingsScreen
 import com.example.appagendita_grupo1.ui.screens.SettingsScreen
 import com.example.appagendita_grupo1.ui.screens.SplashScreen
+import com.example.appagendita_grupo1.ui.screens.AddEventScreen
+import com.example.appagendita_grupo1.ui.screens.AddNoteScreen
+import com.example.appagendita_grupo1.ui.screens.AddTaskScreen
+import com.example.appagendita_grupo1.ui.screens.AddTeamScreen
+import com.example.appagendita_grupo1.ui.screens.DetailScreen
+import com.example.appagendita_grupo1.ui.screens.LoginScreen
+import com.example.appagendita_grupo1.ui.screens.RegistrationScreen
+import com.example.appagendita_grupo1.ui.screens.account.AccountScreen
+import com.example.appagendita_grupo1.ui.screens.account.EditAccountScreen
+import com.example.appagendita_grupo1.ui.screens.home.HomeScreen
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
 import com.example.appagendita_grupo1.viewmodel.NavigationViewModel
 
@@ -72,6 +74,23 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(Routes.Home) {
                         HomeScreen(windowSize = windowSize, onNavigate = go)
+                    }
+                    composable(Routes.Account) {
+                        AccountScreen(
+                            onEditProfile = { go(NavEvent.ToAccountEdit) },
+                            onOpenEvents = { },
+                            onOpenTeams = { },
+                            onOpenSettings = { go(NavEvent.ToSettings) },
+                            onOpenTasks = { },
+                            onOpenCreate = { go(NavEvent.ToAddTask) },
+                            onNavigateHome = { go(NavEvent.Back) }
+                        )
+                    }
+                    composable(Routes.AccountEdit) {
+                        EditAccountScreen(
+                            onBack = { go(NavEvent.Back) },
+                            onSave = { _, _, _, _ -> go(NavEvent.Back) }
+                        )
                     }
                     composable(Routes.Detail) {
                         DetailScreen(
