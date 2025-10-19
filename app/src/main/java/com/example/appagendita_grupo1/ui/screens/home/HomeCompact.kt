@@ -9,15 +9,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -41,13 +37,15 @@ import com.example.appagendita_grupo1.ui.screens.home.components.SectionHeader
 import com.example.appagendita_grupo1.ui.screens.home.components.TitleBlock
 import com.example.appagendita_grupo1.ui.screens.home.components.sampleTasks
 import com.example.appagendita_grupo1.ui.theme.Bg
-import com.example.appagendita_grupo1.ui.theme.PurplePrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeCompact(
   onOpenSettings: () -> Unit = {},
   onOpenDetail: () -> Unit = {},
+  onOpenEvents: () -> Unit = {},
+  onOpenTeams: () -> Unit = {},
+  onOpenAccount: () -> Unit = {},
   onAddTask: () -> Unit = {},
   onAddNote: () -> Unit = {},
   onAddTeam: () -> Unit = {},
@@ -59,18 +57,14 @@ fun HomeCompact(
   Scaffold(
     containerColor = Bg,
     topBar = { HomeTopHeader(onLeftClick = {}, onRightClick = onOpenSettings) },
-    floatingActionButton = {
-        FloatingActionButton(
-            onClick = { showSheet = true },
-            containerColor = PurplePrimary
-        ) { Icon(Icons.Default.Add, contentDescription = null, tint = Color.White) }
-    },
-    floatingActionButtonPosition = FabPosition.Center,
     bottomBar = {
       HomeBottomBar(
           isHomeSelected = true,
-          onSettingsClick = onOpenSettings,
-          onHomeClick = { /* Ya estás aquí */ }
+          onHomeClick = { /* Ya estás aquí */ },
+          onEventsClick = onOpenEvents,
+          onTeamsClick = onOpenTeams,
+          onAccountClick = onOpenAccount,
+          onCreateClick = { showSheet = true }
       )
     }
   ) { padding ->

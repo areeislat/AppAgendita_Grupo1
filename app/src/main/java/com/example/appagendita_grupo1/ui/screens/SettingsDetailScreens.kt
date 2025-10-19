@@ -63,9 +63,11 @@ private fun SettingsDetailScaffold(
         },
         bottomBar = {
             HomeBottomBar(
-                isSettingsSelected = true,
                 onHomeClick = { onNavigate(NavEvent.ToHome) },
-                onSettingsClick = { /* already here */ }
+                onEventsClick = { },
+                onTeamsClick = { },
+                onAccountClick = { onNavigate(NavEvent.ToAccount) },
+                onCreateClick = { }
             )
         },
         containerColor = Color(0xFFF7F7F9)

@@ -14,6 +14,9 @@ fun HomeScreen(
     WindowWidthSizeClass.Compact  -> HomeCompact(
         onOpenSettings = { onNavigate(NavEvent.ToSettings) },
         onOpenDetail = { onNavigate(NavEvent.ToDetail) },
+        onOpenEvents = { },
+        onOpenTeams = { },
+        onOpenAccount = { onNavigate(NavEvent.ToAccount) },
         onAddTask = { onNavigate(NavEvent.ToAddTask) },
         onAddNote = { onNavigate(NavEvent.ToAddNote) },
         onAddTeam = { onNavigate(NavEvent.ToAddTeam) },
