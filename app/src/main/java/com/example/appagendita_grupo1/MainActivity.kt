@@ -8,9 +8,11 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.appagendita_grupo1.navigation.NavEvent
 import com.example.appagendita_grupo1.navigation.Routes
 import com.example.appagendita_grupo1.ui.screens.AboutSettingsScreen
@@ -29,6 +31,7 @@ import com.example.appagendita_grupo1.ui.screens.RegistrationScreen
 import com.example.appagendita_grupo1.ui.screens.account.AccountScreen
 import com.example.appagendita_grupo1.ui.screens.account.EditAccountScreen
 import com.example.appagendita_grupo1.ui.screens.home.HomeScreen
+import com.example.appagendita_grupo1.ui.screens.home.HomeSection
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
 import com.example.appagendita_grupo1.viewmodel.NavigationViewModel
 
@@ -61,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(Routes.Login) {
                         LoginScreen(
-                            onLoginSuccess = { go(NavEvent.ToHome) },
+                            onLoginSuccess = { go(NavEvent.ToHome()) },
                             onNavigateToRegistration = { go(NavEvent.ToRegistration) },
                             onNavigateToSplash = { go(NavEvent.BackToSplash) }
                         )
@@ -72,17 +75,33 @@ class MainActivity : ComponentActivity() {
                             onNavigateToLogin = { go(NavEvent.Back) }
                         )
                     }
-                    composable(Routes.Home) {
-                        HomeScreen(windowSize = windowSize, onNavigate = go)
+                    composable(
+                        route = "${Routes.Home}?section={section}",
+                        arguments = listOf(navArgument("section") {
+                            type = NavType.StringType
+                            nullable = true
+                        })
+                    ) { backStackEntry ->
+                        val sectionName = backStackEntry.arguments?.getString("section")
+                        val section = sectionName?.let { HomeSection.valueOf(it) }
+                        HomeScreen(
+                            windowSize = windowSize,
+                            onNavigate = go,
+                            section = section
+                        )
                     }
                     composable(Routes.Account) {
                         AccountScreen(
                             onEditProfile = { go(NavEvent.ToAccountEdit) },
-                            onOpenEvents = { },
-                            onOpenTeams = { },
+                            onOpenEvents = { go(NavEvent.ToHome(HomeSection.MonthlyNotes)) },
+                            onOpenTeams = { go(NavEvent.ToHome(HomeSection.Events)) },
                             onOpenSettings = { go(NavEvent.ToSettings) },
-                            onOpenTasks = { },
-                            onNavigateHome = { go(NavEvent.Back) }
+                            onOpenTasks = { go(NavEvent.ToHome(HomeSection.TodayTasks)) },
+                            onNavigateHome = { go(NavEvent.ToHome()) },
+                            onAddTask = { go(NavEvent.ToAddTask) },
+                            onAddNote = { go(NavEvent.ToAddNote) },
+                            onAddTeam = { go(NavEvent.ToAddTeam) },
+                            onAddEvent = { go(NavEvent.ToAddEvent) }
                         )
                     }
                     composable(Routes.AccountEdit) {

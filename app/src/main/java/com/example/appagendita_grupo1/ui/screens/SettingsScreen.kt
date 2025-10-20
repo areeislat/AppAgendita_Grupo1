@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appagendita_grupo1.navigation.NavEvent
+import com.example.appagendita_grupo1.ui.screens.home.HomeSection
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeBottomBar
 import com.example.appagendita_grupo1.ui.theme.AppTypography
 
@@ -56,7 +57,7 @@ fun SettingsScreen(onNavigate: (NavEvent) -> Unit = {}) {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigate(NavEvent.ToHome) }) {
+                    IconButton(onClick = { onNavigate(NavEvent.Back) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver"
@@ -72,9 +73,9 @@ fun SettingsScreen(onNavigate: (NavEvent) -> Unit = {}) {
         },
         bottomBar = {
             HomeBottomBar(
-                onHomeClick = { onNavigate(NavEvent.ToHome) },
-                onEventsClick = { },
-                onTeamsClick = { },
+                onHomeClick = { onNavigate(NavEvent.ToHome()) },
+                onEventsClick = { onNavigate(NavEvent.ToHome(HomeSection.MonthlyNotes)) },
+                onTeamsClick = { onNavigate(NavEvent.ToHome(HomeSection.Events)) },
                 onAccountClick = { onNavigate(NavEvent.ToAccount) },
                 onCreateClick = { }
             )

@@ -1,5 +1,7 @@
 package com.example.appagendita_grupo1.navigation
 
+import com.example.appagendita_grupo1.ui.screens.home.HomeSection
+
 sealed interface NavEvent {
     data object Back : NavEvent
 
@@ -7,7 +9,7 @@ sealed interface NavEvent {
     data object ToLogin : NavEvent
 
     // Login
-    data object ToHome : NavEvent
+    data class ToHome(val section: HomeSection? = null) : NavEvent
     data object ToRegistration : NavEvent
     data object BackToSplash : NavEvent
 
@@ -27,4 +29,6 @@ sealed interface NavEvent {
     data object ToAddNote : NavEvent
     data object ToAddTeam : NavEvent
     data object ToAddEvent : NavEvent
+    data object ToEvents : NavEvent
+    data object ToTeams : NavEvent
 }

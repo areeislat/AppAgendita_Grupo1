@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.navigation.NavEvent
+import com.example.appagendita_grupo1.ui.screens.home.HomeSection
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeBottomBar
 import com.example.appagendita_grupo1.ui.theme.AppTypography
 
@@ -63,9 +64,9 @@ private fun SettingsDetailScaffold(
         },
         bottomBar = {
             HomeBottomBar(
-                onHomeClick = { onNavigate(NavEvent.ToHome) },
-                onEventsClick = { },
-                onTeamsClick = { },
+                onHomeClick = { onNavigate(NavEvent.ToHome()) },
+                onEventsClick = { onNavigate(NavEvent.ToHome(HomeSection.MonthlyNotes)) },
+                onTeamsClick = { onNavigate(NavEvent.ToHome(HomeSection.Events)) },
                 onAccountClick = { onNavigate(NavEvent.ToAccount) },
                 onCreateClick = { }
             )
@@ -85,6 +86,8 @@ private fun SettingsDetailScaffold(
         }
     }
 }
+
+fun onNavigate(p1: Any) {}
 
 @Composable
 fun SecuritySettingsScreen(onNavigate: (NavEvent) -> Unit) {

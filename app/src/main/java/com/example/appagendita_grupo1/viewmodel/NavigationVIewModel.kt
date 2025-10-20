@@ -17,8 +17,15 @@ class NavigationViewModel : ViewModel() {
             }
 
             // Login
-            NavEvent.ToHome -> navController.navigate(Routes.Home) {
-                popUpTo(Routes.Login) { inclusive = true }
+            is NavEvent.ToHome -> {
+                val route = if (event.section != null) {
+                    "${Routes.Home}?section=${event.section.name}"
+                } else {
+                    Routes.Home
+                }
+                navController.navigate(route) {
+                    popUpTo(Routes.Login) { inclusive = true }
+                }
             }
             NavEvent.ToRegistration -> navController.navigate(Routes.Registration)
             NavEvent.BackToSplash -> navController.navigate(Routes.Splash) {
@@ -43,6 +50,8 @@ class NavigationViewModel : ViewModel() {
             NavEvent.ToAddNote -> navController.navigate(Routes.AddNote)
             NavEvent.ToAddTeam -> navController.navigate(Routes.AddTeam)
             NavEvent.ToAddEvent -> navController.navigate(Routes.AddEvent)
+            NavEvent.ToEvents -> navController.navigate(Routes.Events)
+            NavEvent.ToTeams -> navController.navigate(Routes.Teams)
         }
     }
 }

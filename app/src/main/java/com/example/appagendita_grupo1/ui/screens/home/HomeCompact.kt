@@ -12,11 +12,13 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomAction
@@ -28,27 +30,31 @@ import com.example.appagendita_grupo1.ui.screens.home.sections.MonthlyNotesSecti
 import com.example.appagendita_grupo1.ui.screens.home.sections.OverviewSection
 import com.example.appagendita_grupo1.ui.screens.home.sections.TodayTasksSection
 import com.example.appagendita_grupo1.ui.theme.Bg
-import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeCompact(
   onOpenSettings: () -> Unit = {},
   onOpenDetail: () -> Unit = {},
-  onOpenEvents: () -> Unit = {},
-  onOpenTeams: () -> Unit = {},
   onOpenAccount: () -> Unit = {},
   onAddTask: () -> Unit = {},
   onAddNote: () -> Unit = {},
   onAddTeam: () -> Unit = {},
-  onAddEvent: () -> Unit = {}
+  onAddEvent: () -> Unit = {},
+  section: HomeSection? = null
 ) {
   val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
   var showSheet by remember { mutableStateOf(false) }
-  var selectedSection by remember { mutableStateOf(HomeSection.Overview) }
+  var selectedSection by remember { mutableStateOf(section ?: HomeSection.Overview) }
+
+  LaunchedEffect(section) {
+    section?.let {
+      selectedSection = it
+    }
+  }
 
   Scaffold(
-    modifier = Modifier.padding(top = 16.dp),
+    modifier = Modifier.padding(top = 18.dp),
     containerColor = Bg,
     topBar = {
       HomeTopHeader(
@@ -59,10 +65,12 @@ fun HomeCompact(
     },
     bottomBar = {
       HomeBottomBar(
-          isHomeSelected = true,
-          onHomeClick = { /* Ya estás aquí */ },
-          onEventsClick = onOpenEvents,
-          onTeamsClick = onOpenTeams,
+          isHomeSelected = selectedSection == HomeSection.Overview,
+          isEventsSelected = selectedSection == HomeSection.MonthlyNotes,
+          isTeamsSelected = selectedSection == HomeSection.Events,
+          onHomeClick = { selectedSection = HomeSection.Overview },
+          onEventsClick = { selectedSection = HomeSection.MonthlyNotes },
+          onTeamsClick = { selectedSection = HomeSection.Events },
           onAccountClick = onOpenAccount,
           onCreateClick = { showSheet = true }
       )

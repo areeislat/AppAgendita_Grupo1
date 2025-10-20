@@ -17,4 +17,6 @@ object Routes {
     const val AddNote = "add_note"
     const val AddTeam = "add_team"
     const val AddEvent = "add_event"
+    const val Events = "events"
+    const val Teams = "teams"
 }
