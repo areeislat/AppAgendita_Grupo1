@@ -73,7 +73,7 @@ fun OverviewSection(
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(vertical = 8.dp, bottom = 96.dp)
+        contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp)
     ) {
         item { TitleBlock() }
         item {
@@ -170,7 +170,7 @@ fun TodayTasksSection(
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(vertical = 8.dp, bottom = 96.dp)
+        contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp)
     ) {
         item {
             SectionHeadline(
@@ -224,7 +224,7 @@ fun MonthlyNotesSection(
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(vertical = 8.dp, bottom = 96.dp)
+        contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp)
     ) {
         item {
             SectionHeadline(
@@ -284,7 +284,7 @@ fun EventsSection(
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
-        contentPadding = PaddingValues(vertical = 8.dp, bottom = 96.dp)
+        contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp)
     ) {
         item {
             SectionHeadline(
@@ -407,12 +407,15 @@ private fun ScheduleCard(task: ScheduledTask) {
 @Composable
 private fun AvatarGroup(initials: List<String>, size: Dp = 36.dp) {
     if (initials.isEmpty()) return
-    Box(modifier = Modifier.width(size + (initials.size - 1).coerceAtLeast(0) * (size / 2))) {
+    Box(modifier = Modifier.width(
+        (size.value + (initials.size - 1).coerceAtLeast(0) * (size.value / 2)).dp
+    )
+    ) {
         initials.take(3).forEachIndexed { index, name ->
             Surface(
                 modifier = Modifier
                     .size(size)
-                    .offset(x = (index * (size / 2))),
+                    .offset(x = (index * (size.value / 2)).dp),
                 color = PurplePrimary.copy(alpha = 0.2f),
                 shape = CircleShape
             ) {
