@@ -43,10 +43,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.appagendita_grupo1.ui.screens.home.components.ProgressTaskCard
+import com.example.appagendita_grupo1.ui.screens.home.components.ProjectHighlightCard
+import com.example.appagendita_grupo1.ui.screens.home.components.SectionHeader
+import com.example.appagendita_grupo1.ui.screens.home.components.TitleBlock
+import com.example.appagendita_grupo1.ui.screens.home.components.sampleTasks
 import com.example.appagendita_grupo1.ui.theme.AppTypography
 import com.example.appagendita_grupo1.ui.theme.BlueAccent
 import com.example.appagendita_grupo1.ui.theme.CardStroke
@@ -55,6 +61,93 @@ import com.example.appagendita_grupo1.ui.theme.PurplePrimary
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
+@Composable
+fun OverviewSection(
+    modifier: Modifier = Modifier,
+    onAddTask: () -> Unit,
+    onAddNote: () -> Unit,
+    onAddEvent: () -> Unit,
+    onOpenDetail: () -> Unit
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        contentPadding = PaddingValues(vertical = 8.dp, bottom = 96.dp)
+    ) {
+        item { TitleBlock() }
+        item {
+            QuickActionsRow(
+                onAddTask = onAddTask,
+                onAddNote = onAddNote,
+                onAddEvent = onAddEvent
+            )
+        }
+        item {
+            ProjectHighlightCard(onClick = onOpenDetail)
+        }
+        item {
+            SectionHeader(title = "En progreso")
+        }
+        items(sampleTasks) { task ->
+            ProgressTaskCard(task = task, onClick = onOpenDetail)
+        }
+    }
+}
+
+@Composable
+private fun QuickActionsRow(
+    onAddTask: () -> Unit,
+    onAddNote: () -> Unit,
+    onAddEvent: () -> Unit
+) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        item {
+            QuickActionChip(
+                label = "Crear nota",
+                icon = Icons.Outlined.Edit,
+                onClick = onAddNote
+            )
+        }
+        item {
+            QuickActionChip(
+                label = "Crear tarea",
+                icon = Icons.Outlined.AddCircle,
+                onClick = onAddTask
+            )
+        }
+        item {
+            QuickActionChip(
+                label = "Crear evento",
+                icon = Icons.Outlined.Schedule,
+                onClick = onAddEvent
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuickActionChip(
+    label: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    AssistChip(
+        onClick = onClick,
+        label = {
+            Text(text = label, style = AppTypography.bodyMedium)
+        },
+        leadingIcon = {
+            Icon(imageVector = icon, contentDescription = null)
+        },
+        colors = AssistChipDefaults.assistChipColors(
+            containerColor = Color.White,
+            labelColor = NavyText,
+            leadingIconContentColor = PurplePrimary
+        ),
+        border = BorderStroke(1.dp, CardStroke)
+    )
+}
 
 @Composable
 fun TodayTasksSection(
