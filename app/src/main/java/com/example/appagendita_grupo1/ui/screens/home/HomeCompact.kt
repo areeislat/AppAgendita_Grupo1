@@ -25,6 +25,7 @@ import com.example.appagendita_grupo1.ui.screens.home.components.HomeBottomBar
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeTopHeader
 import com.example.appagendita_grupo1.ui.screens.home.sections.EventsSection
 import com.example.appagendita_grupo1.ui.screens.home.sections.MonthlyNotesSection
+import com.example.appagendita_grupo1.ui.screens.home.sections.OverviewSection
 import com.example.appagendita_grupo1.ui.screens.home.sections.TodayTasksSection
 import com.example.appagendita_grupo1.ui.theme.Bg
 import androidx.compose.ui.graphics.Color
@@ -44,7 +45,7 @@ fun HomeCompact(
 ) {
   val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
   var showSheet by remember { mutableStateOf(false) }
-  var selectedSection by remember { mutableStateOf(HomeSection.TodayTasks) }
+  var selectedSection by remember { mutableStateOf(HomeSection.Overview) }
 
   Scaffold(
     modifier = Modifier.padding(top = 16.dp),
@@ -72,6 +73,14 @@ fun HomeCompact(
       .padding(horizontal = 16.dp)
 
     when (selectedSection) {
+      HomeSection.Overview -> OverviewSection(
+        modifier = contentModifier,
+        onAddTask = onAddTask,
+        onAddNote = onAddNote,
+        onAddEvent = onAddEvent,
+        onOpenDetail = onOpenDetail
+      )
+
       HomeSection.TodayTasks -> TodayTasksSection(
         modifier = contentModifier,
         onAddTask = onAddTask
