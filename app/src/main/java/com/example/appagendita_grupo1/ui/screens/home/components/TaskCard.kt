@@ -14,8 +14,13 @@ import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.ui.theme.CardStroke
 import com.example.appagendita_grupo1.ui.theme.NavyText
+import com.example.appagendita_grupo1.ui.theme.PurplePrimary
 
 @Composable
 fun SectionHeader(title: String) {
@@ -36,11 +42,56 @@ fun SectionHeader(title: String) {
   }
 }
 
-data class TaskUi(val title: String, val subtitle: String, val progress: Int)
+enum class TaskStatus(val label: String) {
+  Todo("Por hacer"),
+  InProgress("En progreso"),
+  Done("Completadas")
+}
+
+data class TaskUi(
+  val title: String,
+  val subtitle: String,
+  val progress: Int,
+  val status: TaskStatus
+)
+
 val sampleTasks = listOf(
-  TaskUi("Create Detail Booking", "Productivity Mobile App · Hace 2 min", 60),
-  TaskUi("Revision Home Page", "Banking Mobile App · Hace 5 min", 70),
-  TaskUi("Working On Landing Page", "Online Course · Hace 7 min", 80)
+  TaskUi(
+    title = "Crear prototipo de reservas",
+    subtitle = "App de productividad · Hace 2 min",
+    progress = 60,
+    status = TaskStatus.InProgress
+  ),
+  TaskUi(
+    title = "Diseñar pantalla de inicio",
+    subtitle = "Banca móvil · Hace 5 min",
+    progress = 70,
+    status = TaskStatus.InProgress
+  ),
+  TaskUi(
+    title = "Preparar briefing con el cliente",
+    subtitle = "Marketing digital · Hace 10 min",
+    progress = 0,
+    status = TaskStatus.Todo
+  ),
+  TaskUi(
+    title = "Redactar documentación técnica",
+    subtitle = "Sistema interno · Hace 15 min",
+    progress = 10,
+    status = TaskStatus.Todo
+  ),
+  TaskUi(
+    title = "Publicar landing page",
+    subtitle = "Curso online · Hace 20 min",
+    progress = 100,
+    status = TaskStatus.Done
+  ),
+  TaskUi(
+    title = "Enviar informe semanal",
+    subtitle = "Equipo de ventas · Hace 25 min",
+    progress = 100,
+    status = TaskStatus.Done
+  )
 )
 
 @Composable
@@ -68,6 +119,49 @@ fun ProgressTaskCard(task: TaskUi, onClick: () -> Unit) {
   }
 }
 
+@Composable
+fun TaskStatusTabs(
+  selectedStatus: TaskStatus,
+  onStatusSelected: (TaskStatus) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  val statuses = remember { TaskStatus.values().toList() }
+  val selectedIndex = statuses.indexOf(selectedStatus).coerceAtLeast(0)
+
+  TabRow(
+    selectedTabIndex = selectedIndex,
+    modifier = modifier.fillMaxWidth(),
+    containerColor = Color.Transparent,
+    contentColor = NavyText,
+    indicator = { tabPositions ->
+      if (tabPositions.isNotEmpty()) {
+        TabRowDefaults.SecondaryIndicator(
+          modifier = Modifier
+            .tabIndicatorOffset(tabPositions[selectedIndex])
+            .height(3.dp),
+          color = PurplePrimary
+        )
+      }
+    },
+    divider = {}
+  ) {
+    statuses.forEach { status ->
+      val selected = status == selectedStatus
+      Tab(
+        selected = selected,
+        onClick = { onStatusSelected(status) }
+      ) {
+        Text(
+          text = status.label,
+          style = MaterialTheme.typography.bodyMedium,
+          color = if (selected) NavyText else NavyText.copy(alpha = .6f),
+          modifier = Modifier.padding(vertical = 12.dp)
+        )
+      }
+    }
+  }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun SectionHeaderPreview() {
@@ -77,5 +171,11 @@ fun SectionHeaderPreview() {
 @Preview(showBackground = true)
 @Composable
 fun ProgressTaskCardPreview() {
-    ProgressTaskCard(task = sampleTasks.first(), onClick = {})
+    ProgressTaskCard(task = sampleTasks.first { it.status == TaskStatus.InProgress }, onClick = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TaskStatusTabsPreview() {
+    TaskStatusTabs(selectedStatus = TaskStatus.InProgress, onStatusSelected = {})
 }
