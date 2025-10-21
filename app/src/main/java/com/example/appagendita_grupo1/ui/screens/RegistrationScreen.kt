@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -105,6 +106,17 @@ fun RegistrationScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
+            value = state.name,
+            onValueChange = { viewModel.onNameChange(it) },
+            label = { Text("Ingrese su nombre") },
+            isError = state.nameError != null,
+            modifier = Modifier.fillMaxWidth()
+        )
+        state.nameError?.let {
+            Text(text = it, color = Color.Red, fontSize = 12.sp)
+        }
+
+        OutlinedTextField(
             value = state.email,
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("Ingrese su email") },
@@ -112,7 +124,7 @@ fun RegistrationScreen(
             modifier = Modifier.fillMaxWidth()
         )
         state.emailError?.let {
-            Text(text = it)
+            Text(text = it, color = Color.Red, fontSize = 12.sp)
         }
 
         OutlinedTextField(
@@ -124,7 +136,7 @@ fun RegistrationScreen(
             modifier = Modifier.fillMaxWidth()
         )
         state.passwordError?.let {
-            Text(text = it)
+            Text(text = it, color = Color.Red, fontSize = 12.sp)
         }
 
         OutlinedTextField(
@@ -136,17 +148,13 @@ fun RegistrationScreen(
             modifier = Modifier.fillMaxWidth()
         )
         state.confirmPasswordError?.let {
-            Text(text = it)
+            Text(text = it, color = Color.Red, fontSize = 12.sp)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = {
-                if (viewModel.validate()) {
-                    onRegistrationSuccess()
-                }
-            },
+            onClick = { viewModel.register(onRegistrationSuccess) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -154,9 +162,18 @@ fun RegistrationScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = accent,
                 contentColor = Color.White
-            )
+            ),
+            enabled = !state.isLoading
         ) {
-            Text("Registrar", fontSize = 16.sp)
+            if (state.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text("Registrar", fontSize = 16.sp)
+            }
         }
         Spacer(modifier = Modifier.height(32.dp))
 

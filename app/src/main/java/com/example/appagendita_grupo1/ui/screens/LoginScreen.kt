@@ -3,12 +3,29 @@ package com.example.appagendita_grupo1.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,8 +42,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appagendita_grupo1.R
 import com.example.appagendita_grupo1.ui.theme.AppTypography
-import com.example.appagendita_grupo1.viewmodel.LoginViewModel
 import com.example.appagendita_grupo1.ui.theme.PoppinsFamily
+import com.example.appagendita_grupo1.viewmodel.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -157,11 +174,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = {
-                if (viewModel.validate()) {
-                    onLoginSuccess()
-                }
-            },
+            onClick = { viewModel.login(onLoginSuccess) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -169,9 +182,18 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = accent,
                 contentColor = Color.White
-            )
+            ),
+            enabled = !state.isLoading
         ) {
-            Text("Ingresar", fontSize = 16.sp)
+            if (state.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text("Ingresar", fontSize = 16.sp)
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
