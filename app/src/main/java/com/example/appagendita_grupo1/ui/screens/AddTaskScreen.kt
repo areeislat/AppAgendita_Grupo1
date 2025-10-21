@@ -1,6 +1,7 @@
 package com.example.appagendita_grupo1.ui.screens
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -49,7 +49,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
@@ -70,6 +69,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
+import com.example.appagendita_grupo1.viewmodel.AddTaskViewModel
+import com.example.appagendita_grupo1.viewmodel.ReminderOption
+import com.example.appagendita_grupo1.viewmodel.SubtaskUiState
+import com.example.appagendita_grupo1.viewmodel.TaskColorOption
+import com.example.appagendita_grupo1.viewmodel.TaskType
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -226,7 +230,7 @@ fun AddTaskScreen(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    TaskType.values().forEach { type ->
+                    TaskType.entries.forEach { type ->
                         FilterChip(
                             selected = uiState.taskType == type,
                             onClick = { viewModel.onTaskTypeSelected(type) },
@@ -466,8 +470,9 @@ private fun ColorOptionChip(
             containerColor = if (isSelected) option.color.copy(alpha = 0.24f) else MaterialTheme.colorScheme.surface,
             labelColor = MaterialTheme.colorScheme.onSurface
         ),
-        border = AssistChipDefaults.assistChipBorder(
-            borderColor = if (isSelected) option.color else MaterialTheme.colorScheme.outline
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (isSelected) option.color else MaterialTheme.colorScheme.outline
         )
     )
 }
@@ -497,6 +502,7 @@ private fun SubtaskRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ReminderDropdown(
     selectedOption: ReminderOption,
@@ -510,13 +516,13 @@ private fun ReminderDropdown(
             readOnly = true,
             label = { Text("Recordatorio") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = TextFieldDefaults.outlinedTextFieldColors(),
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
                 .menuAnchor()
                 .fillMaxWidth()
         )
-        androidx.compose.material3.ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            ReminderOption.values().forEach { option ->
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            ReminderOption.entries.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(option.label) },
                     onClick = {
@@ -538,11 +544,13 @@ fun AddTaskScreenPreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 private fun TimePickerState.setTime(time: LocalTime) {
     this.hour = time.hour
     this.minute = time.minute
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 private fun TimePickerState.toLocalTime(): LocalTime = LocalTime.of(hour, minute)
 
 private fun LocalTime.formatDisplay(locale: Locale): String {
