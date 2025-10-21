@@ -52,6 +52,8 @@ import com.example.appagendita_grupo1.ui.screens.home.components.ProgressTaskCar
 import com.example.appagendita_grupo1.ui.screens.home.components.ProjectHighlightCard
 import com.example.appagendita_grupo1.ui.screens.home.components.SectionHeader
 import com.example.appagendita_grupo1.ui.screens.home.components.TitleBlock
+import com.example.appagendita_grupo1.ui.screens.home.components.TaskStatus
+import com.example.appagendita_grupo1.ui.screens.home.components.TaskStatusTabs
 import com.example.appagendita_grupo1.ui.screens.home.components.sampleTasks
 import com.example.appagendita_grupo1.ui.theme.AppTypography
 import com.example.appagendita_grupo1.ui.theme.BlueAccent
@@ -70,6 +72,19 @@ fun OverviewSection(
     onAddEvent: () -> Unit,
     onOpenDetail: () -> Unit
 ) {
+    var selectedTaskStatus by remember { mutableStateOf(TaskStatus.InProgress) }
+    val filteredTasks = remember(selectedTaskStatus) {
+        sampleTasks.filter { it.status == selectedTaskStatus }
+    }
+
+    val emptyTaskMessage = remember(selectedTaskStatus) {
+        when (selectedTaskStatus) {
+            TaskStatus.Todo -> "No tienes tareas pendientes por realizar."
+            TaskStatus.InProgress -> "No hay tareas en progreso en este momento."
+            TaskStatus.Done -> "Aún no se han completado tareas."
+        }
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -86,11 +101,24 @@ fun OverviewSection(
         item {
             ProjectHighlightCard(onClick = onOpenDetail)
         }
+        item { SectionHeader(title = "Tareas") }
         item {
-            SectionHeader(title = "En progreso")
+            TaskStatusTabs(
+                selectedStatus = selectedTaskStatus,
+                onStatusSelected = { selectedTaskStatus = it }
+            )
         }
-        items(sampleTasks) { task ->
-            ProgressTaskCard(task = task, onClick = onOpenDetail)
+        if (filteredTasks.isNotEmpty()) {
+            items(filteredTasks) { task ->
+                ProgressTaskCard(task = task, onClick = onOpenDetail)
+            }
+        } else {
+            item {
+                EmptyStateCard(
+                    title = "Sin tareas",
+                    message = emptyTaskMessage
+                )
+            }
         }
     }
 }
