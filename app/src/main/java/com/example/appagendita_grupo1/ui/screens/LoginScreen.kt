@@ -1,5 +1,7 @@
 package com.example.appagendita_grupo1.ui.screens
 
+import android.content.Context
+import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -27,13 +30,22 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,6 +67,26 @@ fun LoginScreen(
 ) {
     val state = viewModel.state
     val accent = colorResource(id = R.color.button_purple)
+    val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val sharedPrefs = remember(context) {
+        context.applicationContext.getSharedPreferences(SESSION_PREFS_NAME, Context.MODE_PRIVATE)
+    }
+    var localEmailError by remember { mutableStateOf<String?>(null) }
+    var localPasswordError by remember { mutableStateOf<String?>(null) }
+    var hasRedirected by remember { mutableStateOf(false) }
+    val onLoginSuccessState = rememberUpdatedState(onLoginSuccess)
+
+    // Si la sesión ya se encontraba activa, navegamos automáticamente al Home.
+    LaunchedEffect(sharedPrefs) {
+        if (sharedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)) {
+            hasRedirected = true
+            onLoginSuccessState.value()
+        }
+    }
+
+    val emailErrorMessage = state.emailError ?: localEmailError
+    val passwordErrorMessage = state.passwordError ?: localPasswordError
 
     Column(
         modifier = Modifier
@@ -111,11 +143,15 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = state.email,
-            onValueChange = { viewModel.onEmailChange(it) },
+            onValueChange = {
+                viewModel.onEmailChange(it)
+                localEmailError = null
+            },
             label = { Text("Ingrese su email") },
-            isError = state.emailError != null,
+            isError = emailErrorMessage != null,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black,
@@ -128,7 +164,7 @@ fun LoginScreen(
                 unfocusedContainerColor = Color.Transparent
             )
         )
-        state.emailError?.let {
+        emailErrorMessage?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
         }
 
@@ -136,12 +172,16 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = state.password,
-            onValueChange = { viewModel.onPasswordChange(it) },
+            onValueChange = {
+                viewModel.onPasswordChange(it)
+                localPasswordError = null
+            },
             label = { Text("Ingrese su contraseña") },
-            isError = state.passwordError != null,
+            isError = passwordErrorMessage != null,
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black,
@@ -154,7 +194,7 @@ fun LoginScreen(
                 unfocusedContainerColor = Color.Transparent
             )
         )
-        state.passwordError?.let {
+        passwordErrorMessage?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
         }
 
@@ -174,7 +214,46 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { viewModel.login(onLoginSuccess) },
+            onClick = {
+                focusManager.clearFocus()
+                if (state.isLoading || hasRedirected) return@Button
+
+                val email = state.email.trim()
+                val password = state.password
+
+                var hasError = false
+                localEmailError = when {
+                    email.isBlank() -> {
+                        hasError = true
+                        "Por favor, ingresa tu email"
+                    }
+
+                    !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                        hasError = true
+                        "Por favor, ingresa un email válido"
+                    }
+
+                    else -> null
+                }
+
+                localPasswordError = when {
+                    password.isBlank() -> {
+                        hasError = true
+                        "Por favor, ingresa tu contraseña"
+                    }
+
+                    else -> null
+                }
+
+                if (!hasError) {
+                    viewModel.onEmailChange(email)
+                    viewModel.login {
+                        sharedPrefs.edit().putBoolean(KEY_IS_LOGGED_IN, true).apply()
+                        hasRedirected = true
+                        onLoginSuccessState.value()
+                    }
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -254,3 +333,6 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     LoginScreen(onLoginSuccess = {}, onNavigateToRegistration = {}, onNavigateToSplash = {})
 }
+
+private const val SESSION_PREFS_NAME = "session_prefs"
+private const val KEY_IS_LOGGED_IN = "isLoggedIn"
