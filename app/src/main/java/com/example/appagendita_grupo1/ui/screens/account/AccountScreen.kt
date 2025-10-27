@@ -1,5 +1,6 @@
 package com.example.appagendita_grupo1.ui.screens.account
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,11 +38,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,11 +72,17 @@ fun AccountScreen(
     onAddTask: () -> Unit = {},
     onAddNote: () -> Unit = {},
     onAddTeam: () -> Unit = {},
-    onAddEvent: () -> Unit = {}
+    onAddEvent: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val sharedPrefs = remember(context) {
+        context.applicationContext.getSharedPreferences(SESSION_PREFS_NAME, Context.MODE_PRIVATE)
+    }
+    val onLogoutState = rememberUpdatedState(onLogout)
 
     Scaffold(
         containerColor = Bg,
@@ -88,49 +97,74 @@ fun AccountScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-            ProfileCard(
-                name = name,
-                username = username,
-                onEditProfile = onEditProfile
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                AccountStatCard(
-                    title = "En Proceso",
-                    value = inProgress.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-                AccountStatCard(
-                    title = "Total Completo",
-                    value = completed.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 96.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                AccountMenuItem(title = "Mis Eventos", onClick = onOpenEvents)
-                AccountMenuItem(title = "Mis Equipos", onClick = onOpenTeams)
-                AccountMenuItem(title = "Configuraciones", onClick = onOpenSettings)
-                AccountMenuItem(title = "Mis tareas", onClick = onOpenTasks)
+                Spacer(modifier = Modifier.height(8.dp))
+                ProfileCard(
+                    name = name,
+                    username = username,
+                    onEditProfile = onEditProfile
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    AccountStatCard(
+                        title = "En Proceso",
+                        value = inProgress.toString(),
+                        modifier = Modifier.weight(1f)
+                    )
+                    AccountStatCard(
+                        title = "Total Completo",
+                        value = completed.toString(),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    AccountMenuItem(title = "Mis Eventos", onClick = onOpenEvents)
+                    AccountMenuItem(title = "Mis Equipos", onClick = onOpenTeams)
+                    AccountMenuItem(title = "Configuraciones", onClick = onOpenSettings)
+                    AccountMenuItem(title = "Mis tareas", onClick = onOpenTasks)
+                }
             }
 
-            Spacer(modifier = Modifier.height(72.dp))
+            // Botón fijo para cerrar la sesión y volver al flujo de login.
+            Button(
+                onClick = {
+                    showSheet = false
+                    sharedPrefs.edit().putBoolean(KEY_IS_LOGGED_IN, false).apply()
+                    onLogoutState.value()
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 24.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFD32F2F),
+                    contentColor = Color.White
+                ),
+                contentPadding = PaddingValues(vertical = 12.dp)
+            ) {
+                Text(text = "Cerrar sesión", style = AppTypography.titleSmall)
+            }
         }
     }
     if (showSheet) {
@@ -287,3 +321,6 @@ private fun AccountMenuItem(title: String, onClick: () -> Unit) {
 private fun AccountScreenPreview() {
     AccountScreen()
 }
+
+private const val SESSION_PREFS_NAME = "session_prefs"
+private const val KEY_IS_LOGGED_IN = "isLoggedIn"
