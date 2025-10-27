@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -24,14 +25,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,6 +55,18 @@ fun RegistrationScreen(
 ) {
     val state = viewModel.state
     val accent = colorResource(id = R.color.button_purple)
+    val focusManager = LocalFocusManager.current
+    val textFieldColors = TextFieldDefaults.colors(
+        focusedTextColor = Color.Black,
+        unfocusedTextColor = Color.Black,
+        focusedLabelColor = Color.Black,
+        unfocusedLabelColor = Color.DarkGray,
+        cursorColor = Color.Black,
+        focusedIndicatorColor = accent,
+        unfocusedIndicatorColor = Color.Gray,
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent
+    )
 
     Column(
         modifier = Modifier
@@ -110,7 +126,9 @@ fun RegistrationScreen(
             onValueChange = { viewModel.onNameChange(it) },
             label = { Text("Ingrese su nombre") },
             isError = state.nameError != null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = textFieldColors
         )
         state.nameError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
@@ -121,7 +139,10 @@ fun RegistrationScreen(
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("Ingrese su email") },
             isError = state.emailError != null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            colors = textFieldColors
         )
         state.emailError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
@@ -133,7 +154,10 @@ fun RegistrationScreen(
             label = { Text("Ingrese su contraseña") },
             isError = state.passwordError != null,
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            colors = textFieldColors
         )
         state.passwordError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
@@ -145,7 +169,10 @@ fun RegistrationScreen(
             label = { Text("Confirmar contraseña") },
             isError = state.confirmPasswordError != null,
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            colors = textFieldColors
         )
         state.confirmPasswordError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
@@ -154,7 +181,10 @@ fun RegistrationScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.register(onRegistrationSuccess) },
+            onClick = {
+                focusManager.clearFocus()
+                viewModel.register(onRegistrationSuccess)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

@@ -101,7 +101,11 @@ class MainActivity : ComponentActivity() {
                             onAddTask = { go(NavEvent.ToAddTask) },
                             onAddNote = { go(NavEvent.ToAddNote) },
                             onAddTeam = { go(NavEvent.ToAddTeam) },
-                            onAddEvent = { go(NavEvent.ToAddEvent) }
+                            onAddEvent = { go(NavEvent.ToAddEvent) },
+                            onLogout = {
+                                go(NavEvent.BackToSplash)
+                                go(NavEvent.ToLogin)
+                            }
                         )
                     }
                     composable(Routes.AccountEdit) {
