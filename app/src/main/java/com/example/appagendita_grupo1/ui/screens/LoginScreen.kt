@@ -1,5 +1,7 @@
 package com.example.appagendita_grupo1.ui.screens
 
+import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,20 +29,29 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appagendita_grupo1.R
+import com.example.appagendita_grupo1.data.SessionManager
 import com.example.appagendita_grupo1.ui.theme.AppTypography
 import com.example.appagendita_grupo1.ui.theme.PoppinsFamily
 import com.example.appagendita_grupo1.viewmodel.LoginViewModel
@@ -55,6 +66,22 @@ fun LoginScreen(
 ) {
     val state = viewModel.state
     val accent = colorResource(id = R.color.button_purple)
+    val context = LocalContext.current
+    var emailFormatError by remember { mutableStateOf<String?>(null) }
+
+    // When the email field changes we discard any local validation message.
+    LaunchedEffect(state.email) {
+        emailFormatError = null
+    }
+
+    // If a session already exists we skip the login screen entirely.
+    LaunchedEffect(Unit) {
+        if (SessionManager.isLoggedIn(context)) {
+            onLoginSuccess()
+        }
+    }
+
+    val emailError = emailFormatError ?: state.emailError
 
     Column(
         modifier = Modifier
@@ -113,9 +140,11 @@ fun LoginScreen(
             value = state.email,
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("Ingrese su email") },
-            isError = state.emailError != null,
+            isError = emailError != null,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black,
@@ -128,7 +157,7 @@ fun LoginScreen(
                 unfocusedContainerColor = Color.Transparent
             )
         )
-        state.emailError?.let {
+        emailError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
         }
 
@@ -142,6 +171,8 @@ fun LoginScreen(
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,
                 unfocusedTextColor = Color.Black,
@@ -174,7 +205,31 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { viewModel.login(onLoginSuccess) },
+            onClick = {
+                val sanitizedEmail = state.email.trim()
+                if (sanitizedEmail != state.email) {
+                    viewModel.onEmailChange(sanitizedEmail)
+                }
+
+                emailFormatError = null
+                val hasFormatError = sanitizedEmail.isNotEmpty() &&
+                    !Patterns.EMAIL_ADDRESS.matcher(sanitizedEmail).matches()
+
+                if (hasFormatError) {
+                    emailFormatError = "Por favor, ingresa un email válido"
+                    return@Button
+                }
+
+                viewModel.login {
+                    SessionManager.setLoggedIn(context, true)
+                    Toast.makeText(
+                        context,
+                        "Inicio de sesión exitoso",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    onLoginSuccess()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

@@ -1,5 +1,6 @@
 package com.example.appagendita_grupo1.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +55,7 @@ fun RegistrationScreen(
 ) {
     val state = viewModel.state
     val accent = colorResource(id = R.color.button_purple)
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -110,7 +115,8 @@ fun RegistrationScreen(
             onValueChange = { viewModel.onNameChange(it) },
             label = { Text("Ingrese su nombre") },
             isError = state.nameError != null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
         state.nameError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
@@ -121,7 +127,9 @@ fun RegistrationScreen(
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("Ingrese su email") },
             isError = state.emailError != null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
         state.emailError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
@@ -133,7 +141,9 @@ fun RegistrationScreen(
             label = { Text("Ingrese su contraseña") },
             isError = state.passwordError != null,
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
         state.passwordError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
@@ -145,7 +155,9 @@ fun RegistrationScreen(
             label = { Text("Confirmar contraseña") },
             isError = state.confirmPasswordError != null,
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
         state.confirmPasswordError?.let {
             Text(text = it, color = Color.Red, fontSize = 12.sp)
@@ -154,7 +166,27 @@ fun RegistrationScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.register(onRegistrationSuccess) },
+            onClick = {
+                // Normalize the captured information before delegating to the ViewModel.
+                val trimmedName = state.name.trim()
+                if (trimmedName != state.name) {
+                    viewModel.onNameChange(trimmedName)
+                }
+
+                val trimmedEmail = state.email.trim()
+                if (trimmedEmail != state.email) {
+                    viewModel.onEmailChange(trimmedEmail)
+                }
+
+                viewModel.register {
+                    Toast.makeText(
+                        context,
+                        "Registro exitoso. Ahora puedes iniciar sesión",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    onRegistrationSuccess()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

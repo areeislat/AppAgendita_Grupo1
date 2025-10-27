@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.appagendita_grupo1.data.SessionManager
 import com.example.appagendita_grupo1.navigation.NavEvent
 import com.example.appagendita_grupo1.navigation.Routes
 import com.example.appagendita_grupo1.ui.screens.AboutSettingsScreen
@@ -41,6 +42,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val startDestination = if (SessionManager.isLoggedIn(this)) {
+            Routes.Home
+        } else {
+            Routes.Splash
+        }
+
         setContent {
             AppAgendita_Grupo1Theme {
                 val windowSize = calculateWindowSizeClass(this@MainActivity)
@@ -57,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 // grafico de navegación
                 NavHost(
                     navController = navController,
-                    startDestination = Routes.Splash
+                    startDestination = startDestination
                 ) {
                     composable(Routes.Splash) {
                         SplashScreen(onContinue = { go(NavEvent.ToLogin) })
@@ -101,7 +108,8 @@ class MainActivity : ComponentActivity() {
                             onAddTask = { go(NavEvent.ToAddTask) },
                             onAddNote = { go(NavEvent.ToAddNote) },
                             onAddTeam = { go(NavEvent.ToAddTeam) },
-                            onAddEvent = { go(NavEvent.ToAddEvent) }
+                            onAddEvent = { go(NavEvent.ToAddEvent) },
+                            onLogout = { go(NavEvent.Logout) }
                         )
                     }
                     composable(Routes.AccountEdit) {

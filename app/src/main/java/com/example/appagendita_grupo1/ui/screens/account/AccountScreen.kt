@@ -42,9 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.appagendita_grupo1.data.SessionManager
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomAction
 import com.example.appagendita_grupo1.ui.screens.home.components.BottomActionsSheet
 import com.example.appagendita_grupo1.ui.screens.home.components.HomeBottomBar
@@ -69,11 +71,13 @@ fun AccountScreen(
     onAddTask: () -> Unit = {},
     onAddNote: () -> Unit = {},
     onAddTeam: () -> Unit = {},
-    onAddEvent: () -> Unit = {}
+    onAddEvent: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = Bg,
@@ -131,6 +135,25 @@ fun AccountScreen(
             }
 
             Spacer(modifier = Modifier.height(72.dp))
+
+            Button(
+                onClick = {
+                    SessionManager.clearSession(context)
+                    onLogout()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFD32F2F),
+                    contentColor = Color.White
+                )
+            ) {
+                Text(text = "Cerrar sesión", style = AppTypography.bodyLarge)
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
     if (showSheet) {

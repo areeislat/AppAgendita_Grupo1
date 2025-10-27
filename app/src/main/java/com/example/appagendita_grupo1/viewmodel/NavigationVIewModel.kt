@@ -52,6 +52,9 @@ class NavigationViewModel : ViewModel() {
             NavEvent.ToAddEvent -> navController.navigate(Routes.AddEvent)
             NavEvent.ToEvents -> navController.navigate(Routes.Events)
             NavEvent.ToTeams -> navController.navigate(Routes.Teams)
+            NavEvent.Logout -> navController.navigate(Routes.Login) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
         }
     }
 }

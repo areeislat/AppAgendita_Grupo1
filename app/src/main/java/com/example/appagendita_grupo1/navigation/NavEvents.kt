@@ -31,4 +31,5 @@ sealed interface NavEvent {
     data object ToAddEvent : NavEvent
     data object ToEvents : NavEvent
     data object ToTeams : NavEvent
+    data object Logout : NavEvent
 }
