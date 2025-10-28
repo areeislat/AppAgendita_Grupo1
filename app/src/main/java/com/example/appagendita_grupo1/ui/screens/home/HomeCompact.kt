@@ -31,6 +31,17 @@ import com.example.appagendita_grupo1.ui.screens.home.sections.OverviewSection
 import com.example.appagendita_grupo1.ui.screens.home.sections.TodayTasksSection
 import com.example.appagendita_grupo1.ui.theme.Bg
 
+// --- INICIO DE CAMBIOS: IMPORTACIONES NECESARIAS ---
+import com.example.appagendita_grupo1.viewmodel.NoteListViewModelFactory
+// Importaciones para la Preview (puedes minimizar esta sección en el IDE)
+import com.example.appagendita_grupo1.data.local.note.NoteDao
+import com.example.appagendita_grupo1.data.local.note.NoteEntity
+import com.example.appagendita_grupo1.data.repository.NoteRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+// --- FIN DE CAMBIOS: IMPORTACIONES NECESARIAS ---
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeCompact(
@@ -41,7 +52,10 @@ fun HomeCompact(
   onAddNote: () -> Unit = {},
   onAddTeam: () -> Unit = {},
   onAddEvent: () -> Unit = {},
-  section: HomeSection? = null
+  section: HomeSection? = null,
+  // --- ACEPTAR PARÁMETRO DE LA FACTORY ---
+  noteListViewModelFactory: NoteListViewModelFactory
+  // --- FIN ACEPTAR PARÁMETRO ---
 ) {
   val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
   var showSheet by remember { mutableStateOf(false) }
@@ -65,14 +79,14 @@ fun HomeCompact(
     },
     bottomBar = {
       HomeBottomBar(
-          isHomeSelected = selectedSection == HomeSection.Overview,
-          isEventsSelected = selectedSection == HomeSection.MonthlyNotes,
-          isTeamsSelected = selectedSection == HomeSection.Events,
-          onHomeClick = { selectedSection = HomeSection.Overview },
-          onEventsClick = { selectedSection = HomeSection.MonthlyNotes },
-          onTeamsClick = { selectedSection = HomeSection.Events },
-          onAccountClick = onOpenAccount,
-          onCreateClick = { showSheet = true }
+        isHomeSelected = selectedSection == HomeSection.Overview,
+        isEventsSelected = selectedSection == HomeSection.MonthlyNotes,
+        isTeamsSelected = selectedSection == HomeSection.Events,
+        onHomeClick = { selectedSection = HomeSection.Overview },
+        onEventsClick = { selectedSection = HomeSection.MonthlyNotes },
+        onTeamsClick = { selectedSection = HomeSection.Events },
+        onAccountClick = onOpenAccount,
+        onCreateClick = { showSheet = true }
       )
     }
   ) { padding ->
@@ -94,10 +108,14 @@ fun HomeCompact(
         onAddTask = onAddTask
       )
 
+      // --- INICIO DE CAMBIOS: SECCIÓN DE NOTAS ---
       HomeSection.MonthlyNotes -> MonthlyNotesSection(
         modifier = contentModifier,
-        onAddNote = onAddNote
+        onAddNote = onAddNote,
+        noteListViewModelFactory = noteListViewModelFactory, // <- 1. Pasar la factory
+        onNoteClick = { /* TODO: Pasar ID de la nota */ onOpenDetail() } // <- 2. Pasar el callback
       )
+      // --- FIN DE CAMBIOS: SECCIÓN DE NOTAS ---
 
       HomeSection.Events -> EventsSection(
         modifier = contentModifier,
@@ -130,5 +148,23 @@ fun HomeCompact(
 @Preview(showBackground = true)
 @Composable
 fun HomeCompactPreview() {
-    HomeCompact()
+  // --- INICIO DE CAMBIOS: ARREGLAR LA PREVIEW ---
+  // Creamos una implementación anónima CORRECTA del NoteDao para el fakeRepository
+  val fakeDao = object : NoteDao {
+    override suspend fun insert(note: NoteEntity): Long = 0L
+    override suspend fun update(note: NoteEntity) {}
+    override suspend fun delete(note: NoteEntity) {}
+    override fun getAllNotes(): Flow<List<NoteEntity>> = flowOf(emptyList())
+    override suspend fun getNoteById(noteId: Long): NoteEntity? = null
+    override suspend fun count(): Int = 0
+  }
+  // Creamos el repositorio falso con el DAO falso
+  val fakeRepository = NoteRepository(fakeDao)
+  // Creamos la factory falsa con el repositorio falso
+  val fakeFactory = NoteListViewModelFactory(repository = fakeRepository)
+
+  HomeCompact(
+    noteListViewModelFactory = fakeFactory // <- Pasar la factory falsa
+  )
+  // --- FIN DE CAMBIOS: ARREGLAR LA PREVIEW ---
 }
