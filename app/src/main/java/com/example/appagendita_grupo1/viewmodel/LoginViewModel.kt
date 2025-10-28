@@ -9,11 +9,15 @@ import androidx.lifecycle.viewModelScope
 // --- INICIO DE CAMBIOS: IMPORTACIONES ---
 import com.example.appagendita_grupo1.data.repository.UserRepository
 import com.example.appagendita_grupo1.model.LoginState // <- Importamos el State de 'model'
+import com.example.appagendita_grupo1.utils.SessionManager
 import kotlinx.coroutines.launch
 // --- FIN DE CAMBIOS: IMPORTACIONES ---
 
-// --- CAMBIO 1: Añadir Repositorio al constructor ---
-class LoginViewModel(private val repository: UserRepository) : ViewModel() {
+// --- CAMBIO 1: Añadir Repositorio y SessionManager al constructor ---
+class LoginViewModel(
+    private val repository: UserRepository,
+    private val sessionManager: SessionManager
+) : ViewModel() {
 
     var state by mutableStateOf(LoginState())
         private set
@@ -51,7 +55,13 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
                 )
 
                 if (user != null) {
-                    // 5. ¡Éxito! El usuario existe.
+                    // 5. ¡Éxito! El usuario existe - guardar sesión
+                    sessionManager.saveSession(
+                        userId = user.id,
+                        userEmail = user.email,
+                        userName = user.name
+                    )
+                    
                     state = state.copy(
                         loginSuccess = true,
                         isLoading = false
@@ -71,6 +81,15 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
                     isLoading = false
                 )
             }
+        }
+    }
+
+    /**
+     * Check if there's an existing session and auto-login
+     */
+    fun checkExistingSession() {
+        if (sessionManager.isSessionValid()) {
+            state = state.copy(loginSuccess = true)
         }
     }
 

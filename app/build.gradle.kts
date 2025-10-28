@@ -75,4 +75,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)     // Extensiones Kotlin (Coroutines/Flow)
     ksp(libs.androidx.room.compiler)            // Procesador de anotaciones (KSP)
     // --- FIN DE CAMBIOS ---
+
+    // Security Crypto for encrypted SharedPreferences
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 }

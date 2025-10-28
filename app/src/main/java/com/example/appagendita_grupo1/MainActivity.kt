@@ -48,6 +48,7 @@ import com.example.appagendita_grupo1.viewmodel.LoginViewModel
 import com.example.appagendita_grupo1.viewmodel.LoginViewModelFactory
 import com.example.appagendita_grupo1.viewmodel.RegistrationViewModel
 import com.example.appagendita_grupo1.viewmodel.RegistrationViewModelFactory
+import com.example.appagendita_grupo1.utils.SessionManager
 // --- FIN DE CAMBIOS: IMPORTACIONES DE USER ---
 
 
@@ -75,9 +76,12 @@ class MainActivity : ComponentActivity() {
                 // Instancia de la Base de Datos
                 val database = remember { AgendaVirtualDatabase.getInstance(applicationContext) }
 
+                // Instancia de SessionManager
+                val sessionManager = remember { SessionManager.getInstance(applicationContext) }
+
                 // --- Dependencias de Notas ---
                 val noteDao = remember { database.noteDao() }
-                val noteRepository = remember { NoteRepository(noteDao) }
+                val noteRepository = remember { NoteRepository(noteDao, sessionManager) }
                 val addNoteViewModelFactory = remember(noteRepository) {
                     AddNoteViewModelFactory(noteRepository)
                 }
@@ -89,8 +93,8 @@ class MainActivity : ComponentActivity() {
                 val userDao = remember { database.userDao() }
                 val userRepository = remember { UserRepository(userDao) }
 
-                val loginViewModelFactory = remember(userRepository) {
-                    LoginViewModelFactory(userRepository)
+                val loginViewModelFactory = remember(userRepository, sessionManager) {
+                    LoginViewModelFactory(userRepository, sessionManager)
                 }
                 val registrationViewModelFactory = remember(userRepository) {
                     RegistrationViewModelFactory(userRepository)
@@ -101,7 +105,7 @@ class MainActivity : ComponentActivity() {
                 // grafico de navegación
                 NavHost(
                     navController = navController,
-                    startDestination = Routes.Splash
+                    startDestination = if (sessionManager.isSessionValid()) Routes.Home else Routes.Splash
                 ) {
                     composable(Routes.Splash) {
                         SplashScreen(onContinue = { go(NavEvent.ToLogin) })
@@ -163,6 +167,7 @@ class MainActivity : ComponentActivity() {
                             onAddTeam = { go(NavEvent.ToAddTeam) },
                             onAddEvent = { go(NavEvent.ToAddEvent) },
                             onLogout = {
+                                sessionManager.clearSession()
                                 go(NavEvent.BackToSplash)
                                 go(NavEvent.ToLogin)
                             }
