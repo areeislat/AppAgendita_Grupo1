@@ -207,17 +207,23 @@ fun AddNoteScreen(
 @Preview(showBackground = true)
 @Composable
 fun AddNoteScreenPreview() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    
     // --- INICIO CORRECCIÓN PREVIEW ---
     // Simulación MUY BÁSICA de un repositorio para la preview
     // No hará nada, pero satisface el constructor del ViewModel
-    val fakeRepository = NoteRepository(noteDao = object : NoteDao {
-        override suspend fun insert(note: NoteEntity): Long = 0L
-        override suspend fun update(note: NoteEntity) {}
-        override suspend fun delete(note: NoteEntity) {}
-        override fun getAllNotes(): Flow<List<NoteEntity>> = flowOf(emptyList()) // Devuelve flujo vacío
-        override suspend fun getNoteById(noteId: Long): NoteEntity? = null
-        override suspend fun count(): Int = 0
-    })
+    val fakeRepository = NoteRepository(
+        noteDao = object : NoteDao {
+            override suspend fun insert(note: NoteEntity): Long = 0L
+            override suspend fun update(note: NoteEntity) {}
+            override suspend fun delete(note: NoteEntity) {}
+            override fun getAllNotes(): Flow<List<NoteEntity>> = flowOf(emptyList())
+            override fun getNotesByUserId(userId: Long): Flow<List<NoteEntity>> = flowOf(emptyList())
+            override suspend fun getNoteById(noteId: Long): NoteEntity? = null
+            override suspend fun count(): Int = 0
+        },
+        sessionManager = com.example.appagendita_grupo1.utils.SessionManager.getInstance(context)
+    )
 
     // Creamos el ViewModel pasándole el repositorio falso
     val previewViewModel = AddNoteViewModel(fakeRepository)

@@ -9,6 +9,7 @@ import com.example.appagendita_grupo1.viewmodel.NoteListViewModel
 import com.example.appagendita_grupo1.data.repository.UserRepository
 import com.example.appagendita_grupo1.viewmodel.LoginViewModel
 import com.example.appagendita_grupo1.viewmodel.RegistrationViewModel
+import com.example.appagendita_grupo1.utils.SessionManager
 // --- FIN DE CAMBIOS: IMPORTACIONES DE USER ---
 
 
@@ -18,7 +19,9 @@ import com.example.appagendita_grupo1.viewmodel.RegistrationViewModel
  * Factory para crear AddNoteViewModel.
  * Necesita el NoteRepository para pasárselo al constructor del ViewModel.
  */
-class AddNoteViewModelFactory(private val repository: NoteRepository) : ViewModelProvider.Factory {
+class AddNoteViewModelFactory(
+    private val repository: NoteRepository
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AddNoteViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
@@ -32,7 +35,9 @@ class AddNoteViewModelFactory(private val repository: NoteRepository) : ViewMode
  * Factory para crear NoteListViewModel.
  * También necesita el NoteRepository.
  */
-class NoteListViewModelFactory(private val repository: NoteRepository) : ViewModelProvider.Factory {
+class NoteListViewModelFactory(
+    private val repository: NoteRepository
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(NoteListViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
@@ -62,14 +67,16 @@ class RegistrationViewModelFactory(private val repository: UserRepository) : Vie
 
 /**
  * Factory para crear LoginViewModel.
- * Necesita el UserRepository.
+ * Necesita el UserRepository y SessionManager.
  */
-class LoginViewModelFactory(private val repository: UserRepository) : ViewModelProvider.Factory {
+class LoginViewModelFactory(
+    private val repository: UserRepository,
+    private val sessionManager: SessionManager
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            // (Esto dará error hasta que modifiquemos LoginViewModel en el Paso 6)
-            return LoginViewModel(repository) as T
+            return LoginViewModel(repository, sessionManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -10,6 +10,7 @@ data class NoteEntity(
 
     val title: String,
     val description: String,
-    val imageUri: String? // Guardamos la Uri como String (puede ser nulo)
+    val imageUri: String?, // Guardamos la Uri como String (puede ser nulo)
+    val userId: Long = 0L // Foreign key to associate note with user
     // Puedes añadir más campos aquí (fecha de creación, etc.) si lo necesitas
 )

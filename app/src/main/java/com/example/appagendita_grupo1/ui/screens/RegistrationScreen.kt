@@ -53,7 +53,9 @@ fun RegistrationScreen(
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = state.registrationSuccess) {
+        println("RegistrationScreen: LaunchedEffect triggered - registrationSuccess = ${state.registrationSuccess}")
         if (state.registrationSuccess) {
+            println("RegistrationScreen: Calling onRegistrationSuccess()")
             onRegistrationSuccess()
         }
     }
@@ -153,6 +155,18 @@ fun RegistrationScreen(
         state.confirmPasswordError?.let {
             Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
+        
+        // Display general error if present
+        state.generalError?.let {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(

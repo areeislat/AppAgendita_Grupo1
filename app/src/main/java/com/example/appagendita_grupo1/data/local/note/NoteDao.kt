@@ -28,6 +28,10 @@ interface NoteDao {
     @Query("SELECT * FROM notes ORDER BY id DESC")
     fun getAllNotes(): Flow<List<NoteEntity>>
 
+    // Obtiene notas filtradas por userId
+    @Query("SELECT * FROM notes WHERE userId = :userId ORDER BY id DESC")
+    fun getNotesByUserId(userId: Long): Flow<List<NoteEntity>>
+
     // Obtiene una nota específica por su ID
     @Query("SELECT * FROM notes WHERE id = :noteId")
     suspend fun getNoteById(noteId: Long): NoteEntity?

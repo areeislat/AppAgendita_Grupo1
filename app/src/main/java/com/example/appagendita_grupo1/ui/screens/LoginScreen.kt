@@ -54,6 +54,11 @@ fun LoginScreen(
     val state = viewModel.state
     var passwordVisible by remember { mutableStateOf(false) }
 
+    // Check for existing session on first composition
+    LaunchedEffect(Unit) {
+        viewModel.checkExistingSession()
+    }
+
     LaunchedEffect(key1 = state.loginSuccess) {
         if (state.loginSuccess) {
             onLoginSuccess()
@@ -188,6 +193,8 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    
     val fakeDao = object : UserDao {
         override suspend fun insert(user: UserEntity): Long = 0
         override suspend fun update(user: UserEntity) {}
@@ -206,7 +213,8 @@ fun LoginScreenPreview() {
         override suspend fun updatePassword(userId: Long, hashedPassword: String, updatedAt: Long) {}
     }
     val fakeRepository = UserRepository(fakeDao)
-    val fakeViewModel = LoginViewModel(fakeRepository)
+    val fakeSessionManager = com.example.appagendita_grupo1.utils.SessionManager.getInstance(context)
+    val fakeViewModel = LoginViewModel(fakeRepository, fakeSessionManager)
 
     LoginScreen(
         onLoginSuccess = {},
