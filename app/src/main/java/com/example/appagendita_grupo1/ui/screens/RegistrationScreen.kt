@@ -32,38 +32,31 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-// --- INICIO DE CAMBIOS: IMPORTACIONES ---
-import androidx.compose.runtime.LaunchedEffect // <-- 1. Importar LaunchedEffect
+import androidx.compose.runtime.LaunchedEffect
 import com.example.appagendita_grupo1.R
 import com.example.appagendita_grupo1.viewmodel.RegistrationViewModel
-// Importaciones para la Preview (puedes minimizarlas)
 import com.example.appagendita_grupo1.data.local.user.UserDao
 import com.example.appagendita_grupo1.data.local.user.UserEntity
 import com.example.appagendita_grupo1.data.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-// --- FIN DE CAMBIOS: IMPORTACIONES ---
 
 
 @Composable
 fun RegistrationScreen(
     onRegistrationSuccess: () -> Unit,
     onNavigateToLogin: () -> Unit,
-    // --- CAMBIO 1: Aceptar el ViewModel como parámetro ---
     viewModel: RegistrationViewModel
 ) {
-    // --- CAMBIO 2: Obtener el estado del ViewModel ---
     val state = viewModel.state
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    // --- CAMBIO 3: Efecto para navegar cuando el registro sea exitoso ---
     LaunchedEffect(key1 = state.registrationSuccess) {
         if (state.registrationSuccess) {
-            onRegistrationSuccess() // Llama a la navegación
+            onRegistrationSuccess()
         }
     }
-    // --- FIN CAMBIO 3 ---
 
     Column(
         modifier = Modifier
@@ -79,10 +72,9 @@ fun RegistrationScreen(
         )
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Campo Nombre
         OutlinedTextField(
             value = state.name,
-            onValueChange = { viewModel.onNameChange(it) }, // <- Conectado al VM
+            onValueChange = { viewModel.onNameChange(it) },
             label = { Text("Nombre Completo") },
             modifier = Modifier.fillMaxWidth(),
             isError = state.nameError != null,
@@ -93,10 +85,9 @@ fun RegistrationScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo Email
         OutlinedTextField(
             value = state.email,
-            onValueChange = { viewModel.onEmailChange(it) }, // <- Conectado al VM
+            onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
             isError = state.emailError != null,
@@ -108,10 +99,9 @@ fun RegistrationScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo Contraseña
         OutlinedTextField(
             value = state.password,
-            onValueChange = { viewModel.onPasswordChange(it) }, // <- Conectado al VM
+            onValueChange = { viewModel.onPasswordChange(it) },
             label = { Text("Contraseña") },
             modifier = Modifier.fillMaxWidth(),
             isError = state.passwordError != null,
@@ -119,10 +109,15 @@ fun RegistrationScreen(
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    // --- INICIO DE CAMBIOS: ÍCONO DE OJO ---
                     Icon(
-                        painter = if (passwordVisible) painterResource(R.drawable.logo_apple) else painterResource(R.drawable.logo_google), // (Deberías cambiar estos íconos)
-                        contentDescription = "Toggle password visibility"
+                        painter = painterResource(
+                            id = if (passwordVisible) R.drawable.ic_visibility_open // <-- Ojo abierto
+                            else R.drawable.ic_visibility_off                      // <-- Ojo cerrado
+                        ),
+                        contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
                     )
+                    // --- FIN DE CAMBIOS: ÍCONO DE OJO ---
                 }
             },
             singleLine = true
@@ -132,10 +127,9 @@ fun RegistrationScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo Confirmar Contraseña
         OutlinedTextField(
             value = state.confirmPassword,
-            onValueChange = { viewModel.onConfirmPasswordChange(it) }, // <- Conectado al VM
+            onValueChange = { viewModel.onConfirmPasswordChange(it) },
             label = { Text("Confirmar Contraseña") },
             modifier = Modifier.fillMaxWidth(),
             isError = state.confirmPasswordError != null,
@@ -143,10 +137,15 @@ fun RegistrationScreen(
             visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                    // --- INICIO DE CAMBIOS: ÍCONO DE OJO ---
                     Icon(
-                        painter = if (confirmPasswordVisible) painterResource(R.drawable.logo_apple) else painterResource(R.drawable.logo_google), // (Deberías cambiar estos íconos)
-                        contentDescription = "Toggle password visibility"
+                        painter = painterResource(
+                            id = if (confirmPasswordVisible) R.drawable.ic_visibility_open // <-- Ojo abierto
+                            else R.drawable.ic_visibility_off                      // <-- Ojo cerrado
+                        ),
+                        contentDescription = if (confirmPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
                     )
+                    // --- FIN DE CAMBIOS: ÍCONO DE OJO ---
                 }
             },
             singleLine = true
@@ -156,13 +155,10 @@ fun RegistrationScreen(
         }
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Botón de Registro
         Button(
-            // --- CAMBIO 4: Llamar a onRegisterClick ---
             onClick = { viewModel.onRegisterClick() },
-            // --- FIN CAMBIO 4 ---
             modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isLoading // Deshabilitar si está cargando
+            enabled = !state.isLoading
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(
@@ -188,22 +184,17 @@ fun RegistrationScreen(
 @Preview(showBackground = true)
 @Composable
 fun RegistrationScreenPreview() {
-    // --- CAMBIO 5: Arreglar la Preview ---
-    // Creamos un DAO falso
     val fakeDao = object : UserDao {
         override suspend fun insert(user: UserEntity): Long = 0
         override suspend fun getUserByEmail(email: String): UserEntity? = null
         override suspend fun login(email: String, password: String): UserEntity? = null
     }
-    // Creamos un Repositorio falso
     val fakeRepository = UserRepository(fakeDao)
-    // Creamos un ViewModel falso
     val fakeViewModel = RegistrationViewModel(fakeRepository)
 
     RegistrationScreen(
         onRegistrationSuccess = {},
         onNavigateToLogin = {},
-        viewModel = fakeViewModel // Le pasamos el VM falso
+        viewModel = fakeViewModel
     )
-    // --- FIN CAMBIO 5 ---
 }

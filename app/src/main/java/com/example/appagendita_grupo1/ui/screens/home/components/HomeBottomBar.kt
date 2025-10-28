@@ -16,10 +16,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.Event
+// --- INICIO DE CAMBIOS: IMPORTACIONES DE ICONOS ---
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PersonOutline
+// 1. Importamos la versión AutoMirrored (corregida)
+import androidx.compose.material.icons.automirrored.outlined.Notes
+// --- FIN DE CAMBIOS: IMPORTACIONES DE ICONOS ---
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -35,16 +38,16 @@ import com.example.appagendita_grupo1.ui.theme.PurplePrimary
 
 @Composable
 fun HomeBottomBar(
-    modifier: Modifier = Modifier,
-    isHomeSelected: Boolean = false,
-    isEventsSelected: Boolean = false,
-    isTeamsSelected: Boolean = false,
-    isAccountSelected: Boolean = false,
-    onHomeClick: () -> Unit = {},
-    onEventsClick: () -> Unit = {},
-    onCreateClick: () -> Unit = {},
-    onTeamsClick: () -> Unit = {},
-    onAccountClick: () -> Unit = {}
+  modifier: Modifier = Modifier,
+  isHomeSelected: Boolean = false,
+  isEventsSelected: Boolean = false,
+  isTeamsSelected: Boolean = false,
+  isAccountSelected: Boolean = false,
+  onHomeClick: () -> Unit = {},
+  onEventsClick: () -> Unit = {},
+  onCreateClick: () -> Unit = {},
+  onTeamsClick: () -> Unit = {},
+  onAccountClick: () -> Unit = {}
 ) {
   Box(
     modifier = modifier
@@ -73,12 +76,15 @@ fun HomeBottomBar(
               selected = isHomeSelected,
               onClick = onHomeClick
             )
+            // --- INICIO DE CAMBIOS: CAMBIAR ICONO ---
             BottomBarIcon(
-              imageVector = Icons.Outlined.Event,
-              contentDescription = "Eventos",
+              // 2. Usamos el icono AutoMirrored
+              imageVector = Icons.AutoMirrored.Outlined.Notes,
+              contentDescription = "Notas",
               selected = isEventsSelected,
               onClick = onEventsClick
             )
+            // --- FIN DE CAMBIOS: CAMBIAR ICONO ---
             Spacer(modifier = Modifier.width(64.dp))
             BottomBarIcon(
               imageVector = Icons.Outlined.Group,
@@ -142,5 +148,5 @@ private fun BottomBarIcon(
 @Preview
 @Composable
 fun HomeBottomBarPreview() {
-    HomeBottomBar(isHomeSelected = true)
+  HomeBottomBar(isEventsSelected = true)
 }
