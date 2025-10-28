@@ -102,8 +102,6 @@ Sigue estos pasos para compilar y ejecutar el proyecto:
    git clone https://github.com/areeislat/AppAgendita_Grupo1.git
    ```
 
-   *(Reemplaza la URL con la de tu repositorio real.)*
-
 2. **Abre el proyecto en Android Studio:**
 
    * Se recomienda la versión **"Iguana" o superior**.
@@ -149,5 +147,3 @@ Este proyecto fue desarrollado por los miembros del **Grupo 1**:
 * **Matias Araos** 
 
 ---
-
-¿Quieres que te lo deje en formato `.md` listo para descargar (con formato Markdown correcto y sangrías)? Puedo generarte el archivo directamente.
