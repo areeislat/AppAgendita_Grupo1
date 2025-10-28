@@ -6,13 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-// --- INICIO DE CAMBIOS: IMPORTACIONES ---
 import com.example.appagendita_grupo1.data.repository.UserRepository
-import com.example.appagendita_grupo1.model.LoginState // <- Importamos el State de 'model'
+import com.example.appagendita_grupo1.model.LoginState
 import kotlinx.coroutines.launch
-// --- FIN DE CAMBIOS: IMPORTACIONES ---
 
-// --- CAMBIO 1: Añadir Repositorio al constructor ---
 class LoginViewModel(private val repository: UserRepository) : ViewModel() {
 
     var state by mutableStateOf(LoginState())
@@ -26,11 +23,9 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
         state = state.copy(password = password, passwordError = null, generalError = null)
     }
 
-    // --- INICIO DE CAMBIOS: LÓGICA DE LOGIN CON ROOM ---
-
     /**
      * Se llama cuando el usuario presiona el botón de Iniciar Sesión.
-     * Reemplaza tu función 'login(onLoginSuccess: () -> Unit)'.
+     * Implementa autenticación segura con BCrypt.
      */
     fun onLoginClick() {
         // 1. Validar campos
@@ -41,33 +36,35 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
         // 2. Mostrar 'loading'
         state = state.copy(isLoading = true)
 
-        // 3. Lanzar corrutina para la BD
+        // 3. Lanzar corrutina para la autenticación
         viewModelScope.launch {
             try {
-                // 4. Intentar hacer login con el repositorio
-                val user = repository.login(
+                // 4. Intentar hacer login con el repositorio (BCrypt validation)
+                when (val result = repository.login(
                     email = state.email.trim(),
                     password = state.password
-                )
-
-                if (user != null) {
-                    // 5. ¡Éxito! El usuario existe.
-                    state = state.copy(
-                        loginSuccess = true,
-                        isLoading = false
-                    )
-                } else {
-                    // 6. Fracaso. Email o contraseña incorrectos.
-                    state = state.copy(
-                        generalError = "Email o contraseña incorrectos",
-                        isLoading = false
-                    )
+                )) {
+                    is UserRepository.AuthResult.Success -> {
+                        // 5. ¡Éxito! El usuario está autenticado.
+                        state = state.copy(
+                            loginSuccess = true,
+                            isLoading = false,
+                            generalError = null
+                        )
+                    }
+                    is UserRepository.AuthResult.Error -> {
+                        // 6. Fracaso. Mostrar error específico.
+                        state = state.copy(
+                            generalError = result.message,
+                            isLoading = false
+                        )
+                    }
                 }
             } catch (e: Exception) {
-                // 7. Error inesperado de la BD
+                // 7. Error inesperado
                 e.printStackTrace()
                 state = state.copy(
-                    generalError = "Ocurrió un error inesperado",
+                    generalError = "Ocurrió un error inesperado. Por favor, inténtelo de nuevo",
                     isLoading = false
                 )
             }
@@ -75,7 +72,7 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
     }
 
     /**
-     * Validación simple de los campos de login.
+     * Validación completa de los campos de login.
      */
     private fun validate(): Boolean {
         // Limpiamos errores previos
@@ -87,21 +84,32 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
 
         var isValid = true
 
-        if (state.email.isBlank()) {
+        // Validar email
+        val email = state.email.trim()
+        if (email.isBlank()) {
             state = state.copy(emailError = "El email no puede estar vacío")
             isValid = false
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(state.email).matches()) {
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             state = state.copy(emailError = "Email no válido")
             isValid = false
         }
 
+        // Validar contraseña
         if (state.password.isBlank()) {
             state = state.copy(passwordError = "La contraseña no puede estar vacía")
+            isValid = false
+        } else if (state.password.length < 6) {
+            state = state.copy(passwordError = "La contraseña debe tener al menos 6 caracteres")
             isValid = false
         }
 
         return isValid
     }
 
-    // --- FIN DE CAMBIOS: LÓGICA DE LOGIN CON ROOM ---
+    /**
+     * Resetea el estado del login (útil para navegación)
+     */
+    fun resetState() {
+        state = LoginState()
+    }
 }

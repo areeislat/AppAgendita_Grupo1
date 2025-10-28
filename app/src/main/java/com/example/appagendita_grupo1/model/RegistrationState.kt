@@ -11,12 +11,15 @@ data class RegistrationState(
     val confirmPasswordError: String? = null,
     val isLoading: Boolean = false,
 
-    // --- INICIO DE CAMBIOS ---
     /**
      * Se pondrá en 'true' cuando el VM
      * haya guardado al usuario en la BD exitosamente.
      * La Vista (Screen) observará este campo para navegar.
      */
-    val registrationSuccess: Boolean = false
-    // --- FIN DE CAMBIOS ---
+    val registrationSuccess: Boolean = false,
+    
+    /**
+     * Para errores que no son de un campo específico
+     */
+    val generalError: String? = null
 )

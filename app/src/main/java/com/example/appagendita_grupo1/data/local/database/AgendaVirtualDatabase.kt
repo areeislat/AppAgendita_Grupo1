@@ -15,9 +15,9 @@ import com.example.appagendita_grupo1.data.local.user.UserEntity
 @Database(
     entities = [
         NoteEntity::class,
-        UserEntity::class // <-- CAMBIO 1: Añadir UserEntity
+        UserEntity::class
     ],
-    version = 2,            // <-- CAMBIO 2: Incrementar la versión de 1 a 2
+    version = 3,            // Incrementar la versión de 2 a 3 debido a cambios en UserEntity
     exportSchema = false
 )
 abstract class AgendaVirtualDatabase : RoomDatabase() {
