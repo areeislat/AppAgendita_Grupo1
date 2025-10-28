@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    // --- INICIO DE CAMBIOS ---
+    // Aplica el plugin KSP
+    alias(libs.plugins.ksp)
+    // --- FIN DE CAMBIOS ---
 }
 
 android {
@@ -62,9 +67,12 @@ dependencies {
     implementation("androidx.compose.material3:material3-window-size-class:1.3.0")
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation("androidx.compose.material3:material3:1.3.0")
-    // Para manejar permisos en Jetpack Compose
-    implementation("com.google.accompanist:accompanist-permissions:0.37.3") // O la última versión
-    // Para cargar imágenes (desde Uri, URL, etc.) en Compose
-    implementation("io.coil-kt:coil-compose:2.7.0") // O la última versión
+    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
+    // --- INICIO DE CAMBIOS (DEPENDENCIAS DE ROOM) ---
+    implementation(libs.androidx.room.runtime) // Runtime de Room
+    implementation(libs.androidx.room.ktx)     // Extensiones Kotlin (Coroutines/Flow)
+    ksp(libs.androidx.room.compiler)            // Procesador de anotaciones (KSP)
+    // --- FIN DE CAMBIOS ---
 }

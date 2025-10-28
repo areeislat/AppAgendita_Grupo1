@@ -32,6 +32,11 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Objects
+import kotlinx.coroutines.flow.Flow // Necesaria para el DAO falso
+import kotlinx.coroutines.flow.flowOf // Necesaria para el DAO falso
+import com.example.appagendita_grupo1.data.local.note.NoteDao // Necesaria para el DAO falso
+import com.example.appagendita_grupo1.data.local.note.NoteEntity // Necesaria para el DAO falso
+import com.example.appagendita_grupo1.data.repository.NoteRepository // Necesaria para el repo falso
 
 // --- INICIO CÓDIGO AÑADIDO ---
 
@@ -202,13 +207,25 @@ fun AddNoteScreen(
 @Preview(showBackground = true)
 @Composable
 fun AddNoteScreenPreview() {
-    // Simulamos una Uri para el preview (no funcionará en el preview real, pero evita errores)
-    val previewViewModel = AddNoteViewModel()
-    // previewViewModel.onPhotoTaken(Uri.parse("file:///android_asset/logo.png")) // Ejemplo
+    // --- INICIO CORRECCIÓN PREVIEW ---
+    // Simulación MUY BÁSICA de un repositorio para la preview
+    // No hará nada, pero satisface el constructor del ViewModel
+    val fakeRepository = NoteRepository(noteDao = object : NoteDao {
+        override suspend fun insert(note: NoteEntity): Long = 0L
+        override suspend fun update(note: NoteEntity) {}
+        override suspend fun delete(note: NoteEntity) {}
+        override fun getAllNotes(): Flow<List<NoteEntity>> = flowOf(emptyList()) // Devuelve flujo vacío
+        override suspend fun getNoteById(noteId: Long): NoteEntity? = null
+        override suspend fun count(): Int = 0
+    })
+
+    // Creamos el ViewModel pasándole el repositorio falso
+    val previewViewModel = AddNoteViewModel(fakeRepository)
 
     AddNoteScreen(
         onBack = {},
         onNoteSaved = {},
-        viewModel = previewViewModel
+        viewModel = previewViewModel // Pasamos el ViewModel simulado
     )
+    // --- FIN CORRECCIÓN PREVIEW ---
 }

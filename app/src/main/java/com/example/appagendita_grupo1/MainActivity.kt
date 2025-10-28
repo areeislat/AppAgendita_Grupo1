@@ -35,6 +35,13 @@ import com.example.appagendita_grupo1.ui.screens.home.HomeSection
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
 import com.example.appagendita_grupo1.viewmodel.NavigationViewModel
 
+// --- INICIO DE CAMBIOS: IMPORTACIONES DE ROOM ---
+import com.example.appagendita_grupo1.data.local.database.AgendaVirtualDatabase
+import com.example.appagendita_grupo1.data.repository.NoteRepository
+import com.example.appagendita_grupo1.viewmodel.AddNoteViewModel
+import com.example.appagendita_grupo1.viewmodel.AddNoteViewModelFactory
+// --- FIN DE CAMBIOS: IMPORTACIONES DE ROOM ---
+
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +60,26 @@ class MainActivity : ComponentActivity() {
                 val go: (NavEvent) -> Unit = remember(navController) {
                     { event -> navVM.onNavEvent(navController, event) }
                 }
+
+                // --- INICIO DE CAMBIOS: CREACIÓN DE DEPENDENCIAS (ROOM) ---
+
+                // 1. Crear la instancia de la Base de Datos (Singleton)
+                val database = remember { AgendaVirtualDatabase.getInstance(applicationContext) }
+
+                // 2. Obtener el DAO de la base de datos
+                val noteDao = remember { database.noteDao() }
+
+                // 3. Crear el Repositorio pasándole el DAO
+                val noteRepository = remember { NoteRepository(noteDao) }
+
+                // 4. Crear la Factory para el AddNoteViewModel, pasándole el Repositorio
+                val addNoteViewModelFactory = remember(noteRepository) {
+                    AddNoteViewModelFactory(noteRepository)
+                }
+                // (En el futuro, crearemos factories similares para AddEventViewModel, etc.)
+
+                // --- FIN DE CAMBIOS: CREACIÓN DE DEPENDENCIAS (ROOM) ---
+
 
                 // grafico de navegación
                 NavHost(
@@ -142,12 +169,24 @@ class MainActivity : ComponentActivity() {
                             onBack = { go(NavEvent.Back) }
                         )
                     }
+
+                    // --- INICIO DE CAMBIOS: RUTA AddNote ---
                     composable(Routes.AddNote) {
+
+                        // 5. Usar la factory para instanciar el ViewModel
+                        val addNoteViewModel: AddNoteViewModel = viewModel(
+                            factory = addNoteViewModelFactory
+                        )
+
+                        // 6. Pasar la instancia del ViewModel a la pantalla
                         AddNoteScreen(
                             onBack = { go(NavEvent.Back) },
-                            onNoteSaved = { go(NavEvent.Back) }
+                            onNoteSaved = { go(NavEvent.Back) },
+                            viewModel = addNoteViewModel // <-- ¡CAMBIO IMPORTANTE!
                         )
                     }
+                    // --- FIN DE CAMBIOS: RUTA AddNote ---
+
                     composable(Routes.AddTeam) {
                         AddTeamScreen(
                             onBack = { go(NavEvent.Back) },
