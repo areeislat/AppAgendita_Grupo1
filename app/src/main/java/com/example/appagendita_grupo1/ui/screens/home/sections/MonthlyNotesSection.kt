@@ -89,6 +89,8 @@ fun MonthlyNotesSection(
 @Preview(showBackground = true)
 @Composable
 fun MonthlyNotesSectionPreview() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    
     // --- INICIO DE CAMBIOS: ARREGLAR LA PREVIEW ---
     // Creamos un DAO falso
     val fakeDao = object : NoteDao {
@@ -97,15 +99,24 @@ fun MonthlyNotesSectionPreview() {
         override suspend fun delete(note: NoteEntity) {}
         override fun getAllNotes(): Flow<List<NoteEntity>> = flowOf(
             listOf( // Simulamos una lista con notas
-                NoteEntity(1, "Nota de prueba 1", "Esta es la descripción de la primera nota. Es un poco larga para ver cómo se corta.", null),
-                NoteEntity(2, "Nota con imagen 2", "Descripción corta.", "file://...")
+                NoteEntity(1, "Nota de prueba 1", "Esta es la descripción de la primera nota. Es un poco larga para ver cómo se corta.", null, 0L),
+                NoteEntity(2, "Nota con imagen 2", "Descripción corta.", "file://...", 0L)
+            )
+        )
+        override fun getNotesByUserId(userId: Long): Flow<List<NoteEntity>> = flowOf(
+            listOf(
+                NoteEntity(1, "Nota de prueba 1", "Esta es la descripción de la primera nota. Es un poco larga para ver cómo se corta.", null, userId),
+                NoteEntity(2, "Nota con imagen 2", "Descripción corta.", "file://...", userId)
             )
         )
         override suspend fun getNoteById(noteId: Long): NoteEntity? = null
         override suspend fun count(): Int = 2
     }
-    // Creamos un Repositorio falso
-    val fakeRepository = NoteRepository(fakeDao)
+    // Creamos un Repositorio falso con SessionManager
+    val fakeRepository = NoteRepository(
+        fakeDao,
+        com.example.appagendita_grupo1.utils.SessionManager.getInstance(context)
+    )
     // Creamos una Factory falsa
     val fakeFactory = NoteListViewModelFactory(repository = fakeRepository)
 

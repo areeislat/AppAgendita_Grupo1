@@ -148,6 +148,8 @@ fun HomeCompact(
 @Preview(showBackground = true)
 @Composable
 fun HomeCompactPreview() {
+  val context = androidx.compose.ui.platform.LocalContext.current
+  
   // --- INICIO DE CAMBIOS: ARREGLAR LA PREVIEW ---
   // Creamos una implementación anónima CORRECTA del NoteDao para el fakeRepository
   val fakeDao = object : NoteDao {
@@ -155,11 +157,15 @@ fun HomeCompactPreview() {
     override suspend fun update(note: NoteEntity) {}
     override suspend fun delete(note: NoteEntity) {}
     override fun getAllNotes(): Flow<List<NoteEntity>> = flowOf(emptyList())
+    override fun getNotesByUserId(userId: Long): Flow<List<NoteEntity>> = flowOf(emptyList())
     override suspend fun getNoteById(noteId: Long): NoteEntity? = null
     override suspend fun count(): Int = 0
   }
-  // Creamos el repositorio falso con el DAO falso
-  val fakeRepository = NoteRepository(fakeDao)
+  // Creamos el repositorio falso con el DAO falso y SessionManager
+  val fakeRepository = NoteRepository(
+    fakeDao,
+    com.example.appagendita_grupo1.utils.SessionManager.getInstance(context)
+  )
   // Creamos la factory falsa con el repositorio falso
   val fakeFactory = NoteListViewModelFactory(repository = fakeRepository)
 
