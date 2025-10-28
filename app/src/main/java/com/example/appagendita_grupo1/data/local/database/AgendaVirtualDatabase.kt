@@ -6,18 +6,29 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.appagendita_grupo1.data.local.note.NoteDao
 import com.example.appagendita_grupo1.data.local.note.NoteEntity
+// --- INICIO DE CAMBIOS: IMPORTAR USER ---
+import com.example.appagendita_grupo1.data.local.user.UserDao
+import com.example.appagendita_grupo1.data.local.user.UserEntity
+// --- FIN DE CAMBIOS: IMPORTAR USER ---
 
 // Define las entidades (tablas) y la versión de la base de datos
 @Database(
-    entities = [NoteEntity::class], // Añade aquí más entidades si creas EventEntity, etc.
-    version = 1,                    // Incrementa si cambias el esquema
-    exportSchema = false            // Puedes poner true para exportar el esquema (útil para migraciones complejas)
+    entities = [
+        NoteEntity::class,
+        UserEntity::class // <-- CAMBIO 1: Añadir UserEntity
+    ],
+    version = 2,            // <-- CAMBIO 2: Incrementar la versión de 1 a 2
+    exportSchema = false
 )
 abstract class AgendaVirtualDatabase : RoomDatabase() {
 
     // Expone el DAO para las notas
     abstract fun noteDao(): NoteDao
-    // Añade aquí más DAOs si los necesitas (ej. abstract fun eventDao(): EventDao)
+
+    // --- INICIO DE CAMBIOS: AÑADIR NUEVO DAO ---
+    // Expone el DAO para los usuarios
+    abstract fun userDao(): UserDao
+    // --- FIN DE CAMBIOS: AÑADIR NUEVO DAO ---
 
     companion object {
         @Volatile // Asegura que la instancia sea visible inmediatamente para todos los hilos
@@ -33,9 +44,11 @@ abstract class AgendaVirtualDatabase : RoomDatabase() {
                     AgendaVirtualDatabase::class.java,
                     DATABASE_NAME
                 )
-                    // IMPORTANTE: En desarrollo, si cambias la versión y no quieres hacer migraciones,
-                    // puedes usar fallbackToDestructiveMigration(). Esto borrará y recreará la BD.
-                    // ¡¡NO USAR EN PRODUCCIÓN sin una estrategia de migración!!
+                    // NOTA IMPORTANTE:
+                    // Como cambiamos la versión de 1 a 2,
+                    // esta línea borrará la base de datos existente (incluidas tus notas de prueba)
+                    // y la creará desde cero con la nueva estructura (tabla Notes + Users).
+                    // ¡Esto es perfecto para desarrollo!
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance

@@ -35,14 +35,20 @@ import com.example.appagendita_grupo1.ui.screens.home.HomeSection
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
 import com.example.appagendita_grupo1.viewmodel.NavigationViewModel
 
-// --- IMPORTACIONES DE ROOM ---
+// --- IMPORTACIONES DE ROOM (NOTAS) ---
 import com.example.appagendita_grupo1.data.local.database.AgendaVirtualDatabase
 import com.example.appagendita_grupo1.data.repository.NoteRepository
 import com.example.appagendita_grupo1.viewmodel.AddNoteViewModel
 import com.example.appagendita_grupo1.viewmodel.AddNoteViewModelFactory
-// --- INICIO DE CAMBIOS: NUEVA IMPORTACIÓN ---
 import com.example.appagendita_grupo1.viewmodel.NoteListViewModelFactory
-// --- FIN DE CAMBIOS: NUEVA IMPORTACIÓN ---
+
+// --- INICIO DE CAMBIOS: IMPORTACIONES DE USER ---
+import com.example.appagendita_grupo1.data.repository.UserRepository
+import com.example.appagendita_grupo1.viewmodel.LoginViewModel
+import com.example.appagendita_grupo1.viewmodel.LoginViewModelFactory
+import com.example.appagendita_grupo1.viewmodel.RegistrationViewModel
+import com.example.appagendita_grupo1.viewmodel.RegistrationViewModelFactory
+// --- FIN DE CAMBIOS: IMPORTACIONES DE USER ---
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -66,21 +72,31 @@ class MainActivity : ComponentActivity() {
 
                 // --- CREACIÓN DE DEPENDENCIAS (ROOM) ---
 
+                // Instancia de la Base de Datos
                 val database = remember { AgendaVirtualDatabase.getInstance(applicationContext) }
+
+                // --- Dependencias de Notas ---
                 val noteDao = remember { database.noteDao() }
                 val noteRepository = remember { NoteRepository(noteDao) }
-
-                // Factory para AddNoteViewModel
                 val addNoteViewModelFactory = remember(noteRepository) {
                     AddNoteViewModelFactory(noteRepository)
                 }
-
-                // --- INICIO DE CAMBIOS: NUEVA FACTORY ---
-                // Factory para NoteListViewModel
                 val noteListViewModelFactory = remember(noteRepository) {
                     NoteListViewModelFactory(noteRepository)
                 }
-                // --- FIN DE CAMBIOS: NUEVA FACTORY ---
+
+                // --- INICIO DE CAMBIOS: DEPENDENCIAS DE USER ---
+                val userDao = remember { database.userDao() }
+                val userRepository = remember { UserRepository(userDao) }
+
+                val loginViewModelFactory = remember(userRepository) {
+                    LoginViewModelFactory(userRepository)
+                }
+                val registrationViewModelFactory = remember(userRepository) {
+                    RegistrationViewModelFactory(userRepository)
+                }
+                // --- FIN DE CAMBIOS: DEPENDENCIAS DE USER ---
+
 
                 // grafico de navegación
                 NavHost(
@@ -90,21 +106,34 @@ class MainActivity : ComponentActivity() {
                     composable(Routes.Splash) {
                         SplashScreen(onContinue = { go(NavEvent.ToLogin) })
                     }
+
+                    // --- INICIO DE CAMBIOS: RUTA Login ---
                     composable(Routes.Login) {
+                        val loginViewModel: LoginViewModel = viewModel(
+                            factory = loginViewModelFactory
+                        )
                         LoginScreen(
                             onLoginSuccess = { go(NavEvent.ToHome()) },
                             onNavigateToRegistration = { go(NavEvent.ToRegistration) },
-                            onNavigateToSplash = { go(NavEvent.BackToSplash) }
+                            onNavigateToSplash = { go(NavEvent.BackToSplash) },
+                            viewModel = loginViewModel // <-- Pasamos el ViewModel
                         )
                     }
+                    // --- FIN DE CAMBIOS: RUTA Login ---
+
+                    // --- INICIO DE CAMBIOS: RUTA Registration ---
                     composable(Routes.Registration) {
+                        val registrationViewModel: RegistrationViewModel = viewModel(
+                            factory = registrationViewModelFactory
+                        )
                         RegistrationScreen(
                             onRegistrationSuccess = { go(NavEvent.ToLoginFromRegistration) },
-                            onNavigateToLogin = { go(NavEvent.Back) }
+                            onNavigateToLogin = { go(NavEvent.Back) },
+                            viewModel = registrationViewModel // <-- Pasamos el ViewModel
                         )
                     }
+                    // --- FIN DE CAMBIOS: RUTA Registration ---
 
-                    // --- INICIO DE CAMBIOS: RUTA Home ---
                     composable(
                         route = "${Routes.Home}?section={section}",
                         arguments = listOf(navArgument("section") {
@@ -118,12 +147,9 @@ class MainActivity : ComponentActivity() {
                             windowSize = windowSize,
                             onNavigate = go,
                             section = section,
-                            // Pasamos la nueva factory a HomeScreen
                             noteListViewModelFactory = noteListViewModelFactory
                         )
                     }
-                    // --- FIN DE CAMBIOS: RUTA Home ---
-
                     composable(Routes.Account) {
                         AccountScreen(
                             onEditProfile = { go(NavEvent.ToAccountEdit) },

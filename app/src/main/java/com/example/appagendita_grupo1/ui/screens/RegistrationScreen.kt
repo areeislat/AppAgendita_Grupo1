@@ -1,9 +1,7 @@
 package com.example.appagendita_grupo1.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,255 +10,200 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+// --- INICIO DE CAMBIOS: IMPORTACIONES ---
+import androidx.compose.runtime.LaunchedEffect // <-- 1. Importar LaunchedEffect
 import com.example.appagendita_grupo1.R
-import com.example.appagendita_grupo1.ui.theme.PoppinsFamily
 import com.example.appagendita_grupo1.viewmodel.RegistrationViewModel
+// Importaciones para la Preview (puedes minimizarlas)
+import com.example.appagendita_grupo1.data.local.user.UserDao
+import com.example.appagendita_grupo1.data.local.user.UserEntity
+import com.example.appagendita_grupo1.data.repository.UserRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+// --- FIN DE CAMBIOS: IMPORTACIONES ---
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun RegistrationScreen(
     onRegistrationSuccess: () -> Unit,
     onNavigateToLogin: () -> Unit,
-    viewModel: RegistrationViewModel = viewModel()
+    // --- CAMBIO 1: Aceptar el ViewModel como parámetro ---
+    viewModel: RegistrationViewModel
 ) {
+    // --- CAMBIO 2: Obtener el estado del ViewModel ---
     val state = viewModel.state
-    val accent = colorResource(id = R.color.button_purple)
-    val focusManager = LocalFocusManager.current
-    val textFieldColors = TextFieldDefaults.colors(
-        focusedTextColor = Color.Black,
-        unfocusedTextColor = Color.Black,
-        focusedLabelColor = Color.Black,
-        unfocusedLabelColor = Color.DarkGray,
-        cursorColor = Color.Black,
-        focusedIndicatorColor = accent,
-        unfocusedIndicatorColor = Color.Gray,
-        focusedContainerColor = Color.Transparent,
-        unfocusedContainerColor = Color.Transparent
-    )
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    // --- CAMBIO 3: Efecto para navegar cuando el registro sea exitoso ---
+    LaunchedEffect(key1 = state.registrationSuccess) {
+        if (state.registrationSuccess) {
+            onRegistrationSuccess() // Llama a la navegación
+        }
+    }
+    // --- FIN CAMBIO 3 ---
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 48.dp,
-                bottom = 16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            IconButton(
-                onClick = onNavigateToLogin,
-                modifier = Modifier.align(Alignment.CenterStart)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver"
-                )
-            }
-            Text(
-                text = "Registrarse",
-                fontSize = 20.sp,
-                fontFamily = PoppinsFamily,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
         Text(
             text = "Crear Cuenta",
-            fontSize = 24.sp,
-            fontFamily = PoppinsFamily,
-            fontWeight = FontWeight.SemiBold
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Por favor, registre sus datos personales para continuar.",
-            fontSize = 14.sp,
-            fontFamily = PoppinsFamily,
-            fontWeight = FontWeight.Normal,
-            color = Color.Gray
-        )
-
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Campo Nombre
         OutlinedTextField(
             value = state.name,
-            onValueChange = { viewModel.onNameChange(it) },
-            label = { Text("Ingrese su nombre") },
-            isError = state.nameError != null,
+            onValueChange = { viewModel.onNameChange(it) }, // <- Conectado al VM
+            label = { Text("Nombre Completo") },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = textFieldColors
+            isError = state.nameError != null,
+            singleLine = true
         )
         state.nameError?.let {
-            Text(text = it, color = Color.Red, fontSize = 12.sp)
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
-
-        OutlinedTextField(
-            value = state.email,
-            onValueChange = { viewModel.onEmailChange(it) },
-            label = { Text("Ingrese su email") },
-            isError = state.emailError != null,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            colors = textFieldColors
-        )
-        state.emailError?.let {
-            Text(text = it, color = Color.Red, fontSize = 12.sp)
-        }
-
-        OutlinedTextField(
-            value = state.password,
-            onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text("Ingrese su contraseña") },
-            isError = state.passwordError != null,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            colors = textFieldColors
-        )
-        state.passwordError?.let {
-            Text(text = it, color = Color.Red, fontSize = 12.sp)
-        }
-
-        OutlinedTextField(
-            value = state.confirmPassword,
-            onValueChange = { viewModel.onConfirmPasswordChange(it) },
-            label = { Text("Confirmar contraseña") },
-            isError = state.confirmPasswordError != null,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            colors = textFieldColors
-        )
-        state.confirmPasswordError?.let {
-            Text(text = it, color = Color.Red, fontSize = 12.sp)
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                focusManager.clearFocus()
-                viewModel.register(onRegistrationSuccess)
+        // Campo Email
+        OutlinedTextField(
+            value = state.email,
+            onValueChange = { viewModel.onEmailChange(it) }, // <- Conectado al VM
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = state.emailError != null,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true
+        )
+        state.emailError?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Campo Contraseña
+        OutlinedTextField(
+            value = state.password,
+            onValueChange = { viewModel.onPasswordChange(it) }, // <- Conectado al VM
+            label = { Text("Contraseña") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = state.passwordError != null,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        painter = if (passwordVisible) painterResource(R.drawable.logo_apple) else painterResource(R.drawable.logo_google), // (Deberías cambiar estos íconos)
+                        contentDescription = "Toggle password visibility"
+                    )
+                }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = accent,
-                contentColor = Color.White
-            ),
-            enabled = !state.isLoading
+            singleLine = true
+        )
+        state.passwordError?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Campo Confirmar Contraseña
+        OutlinedTextField(
+            value = state.confirmPassword,
+            onValueChange = { viewModel.onConfirmPasswordChange(it) }, // <- Conectado al VM
+            label = { Text("Confirmar Contraseña") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = state.confirmPasswordError != null,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                    Icon(
+                        painter = if (confirmPasswordVisible) painterResource(R.drawable.logo_apple) else painterResource(R.drawable.logo_google), // (Deberías cambiar estos íconos)
+                        contentDescription = "Toggle password visibility"
+                    )
+                }
+            },
+            singleLine = true
+        )
+        state.confirmPasswordError?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Botón de Registro
+        Button(
+            // --- CAMBIO 4: Llamar a onRegisterClick ---
+            onClick = { viewModel.onRegisterClick() },
+            // --- FIN CAMBIO 4 ---
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !state.isLoading // Deshabilitar si está cargando
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text("Registrar", fontSize = 16.sp)
+                Text(text = "Registrarse")
             }
         }
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text(
-            text = "Ingresar con...",
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            color = Color.Gray
-        )
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo_apple),
-                contentDescription = "Apple Login",
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .clickable { /* Handle Apple login */ }
-            )
-            Spacer(modifier = Modifier.size(20.dp))
-            Image(
-                painter = painterResource(id = R.drawable.logo_google),
-                contentDescription = "Google Login",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { /* Handle Google login */ }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text("¿Ya tienes cuenta? ")
+        Row {
+            Text(text = "¿Ya tienes una cuenta? ")
             Text(
-                text = "Ingresa",
-                fontFamily = PoppinsFamily,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable(onClick = onNavigateToLogin),
-                color = accent
+                text = "Inicia sesión",
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onNavigateToLogin() }
             )
         }
-
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun RegistrationScreenPreview() {
-    RegistrationScreen(onRegistrationSuccess = {}, onNavigateToLogin = {})
+    // --- CAMBIO 5: Arreglar la Preview ---
+    // Creamos un DAO falso
+    val fakeDao = object : UserDao {
+        override suspend fun insert(user: UserEntity): Long = 0
+        override suspend fun getUserByEmail(email: String): UserEntity? = null
+        override suspend fun login(email: String, password: String): UserEntity? = null
+    }
+    // Creamos un Repositorio falso
+    val fakeRepository = UserRepository(fakeDao)
+    // Creamos un ViewModel falso
+    val fakeViewModel = RegistrationViewModel(fakeRepository)
+
+    RegistrationScreen(
+        onRegistrationSuccess = {},
+        onNavigateToLogin = {},
+        viewModel = fakeViewModel // Le pasamos el VM falso
+    )
+    // --- FIN CAMBIO 5 ---
 }
