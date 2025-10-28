@@ -190,8 +190,20 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     val fakeDao = object : UserDao {
         override suspend fun insert(user: UserEntity): Long = 0
+        override suspend fun update(user: UserEntity) {}
         override suspend fun getUserByEmail(email: String): UserEntity? = null
-        override suspend fun login(email: String, password: String): UserEntity? = null
+        override suspend fun getUserById(userId: Long): UserEntity? = null
+        override suspend fun getUserBySessionToken(sessionToken: String): UserEntity? = null
+        override suspend fun updateSessionToken(
+            userId: Long,
+            sessionToken: String?,
+            sessionCreatedAt: Long?,
+            sessionExpiresAt: Long?,
+            updatedAt: Long
+        ) {}
+        override suspend fun clearSession(userId: Long, updatedAt: Long) {}
+        override suspend fun updateProfile(userId: Long, name: String, updatedAt: Long) {}
+        override suspend fun updatePassword(userId: Long, hashedPassword: String, updatedAt: Long) {}
     }
     val fakeRepository = UserRepository(fakeDao)
     val fakeViewModel = LoginViewModel(fakeRepository)

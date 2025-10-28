@@ -75,4 +75,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)     // Extensiones Kotlin (Coroutines/Flow)
     ksp(libs.androidx.room.compiler)            // Procesador de anotaciones (KSP)
     // --- FIN DE CAMBIOS ---
+    
+    // BCrypt for password hashing
+    implementation("org.mindrot:jbcrypt:0.4")
 }
