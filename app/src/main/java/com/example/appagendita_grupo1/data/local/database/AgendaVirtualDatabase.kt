@@ -19,7 +19,7 @@ import com.example.appagendita_grupo1.data.local.user.UserEntity
         NoteEntity::class,
         UserEntity::class // <-- CAMBIO 1: Añadir UserEntity
     ],
-    version = 3,            // <-- CAMBIO 2: Incrementar la versión de 2 a 3
+    version = 4,            // <-- CAMBIO 2: Incrementar la versión a 4
     exportSchema = false
 )
 abstract class AgendaVirtualDatabase : RoomDatabase() {
@@ -44,6 +44,13 @@ abstract class AgendaVirtualDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE notes ADD COLUMN userId INTEGER NOT NULL DEFAULT 0")
             }
         }
+        
+        // Migration from version 3 to 4: No schema changes, just version bump
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // No changes needed, just version increment to fix migration issues
+            }
+        }
 
         // Obtiene la instancia Singleton de la base de datos
         fun getInstance(context: Context): AgendaVirtualDatabase {
@@ -55,7 +62,7 @@ abstract class AgendaVirtualDatabase : RoomDatabase() {
                     DATABASE_NAME
                 )
                     // Add migration strategy
-                    .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                     // NOTA IMPORTANTE:
                     // fallbackToDestructiveMigration() borrará la base de datos si no hay migración disponible
                     // Esto es útil para desarrollo, pero en producción deberías manejar migraciones apropiadamente
