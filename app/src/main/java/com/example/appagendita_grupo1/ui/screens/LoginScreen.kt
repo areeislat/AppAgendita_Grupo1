@@ -193,13 +193,16 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    
     val fakeDao = object : UserDao {
         override suspend fun insert(user: UserEntity): Long = 0
         override suspend fun getUserByEmail(email: String): UserEntity? = null
         override suspend fun login(email: String, password: String): UserEntity? = null
     }
     val fakeRepository = UserRepository(fakeDao)
-    val fakeViewModel = LoginViewModel(fakeRepository)
+    val fakeSessionManager = com.example.appagendita_grupo1.utils.SessionManager.getInstance(context)
+    val fakeViewModel = LoginViewModel(fakeRepository, fakeSessionManager)
 
     LoginScreen(
         onLoginSuccess = {},
