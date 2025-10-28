@@ -54,6 +54,11 @@ fun LoginScreen(
     val state = viewModel.state
     var passwordVisible by remember { mutableStateOf(false) }
 
+    // Check for existing session on first composition
+    LaunchedEffect(Unit) {
+        viewModel.checkExistingSession()
+    }
+
     LaunchedEffect(key1 = state.loginSuccess) {
         if (state.loginSuccess) {
             onLoginSuccess()
