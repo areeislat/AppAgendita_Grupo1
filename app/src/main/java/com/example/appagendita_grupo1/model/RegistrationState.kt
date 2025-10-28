@@ -17,6 +17,11 @@ data class RegistrationState(
      * haya guardado al usuario en la BD exitosamente.
      * La Vista (Screen) observará este campo para navegar.
      */
-    val registrationSuccess: Boolean = false
+    val registrationSuccess: Boolean = false,
+    
+    /**
+     * Error general que no está asociado a un campo específico
+     */
+    val generalError: String? = null
     // --- FIN DE CAMBIOS ---
 )

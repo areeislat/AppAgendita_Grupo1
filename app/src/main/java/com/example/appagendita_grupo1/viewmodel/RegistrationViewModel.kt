@@ -21,19 +21,19 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
 
     // Funciones 'on...Change' (sin cambios)
     fun onNameChange(name: String) {
-        state = state.copy(name = name, nameError = null)
+        state = state.copy(name = name, nameError = null, generalError = null)
     }
 
     fun onEmailChange(email: String) {
-        state = state.copy(email = email, emailError = null)
+        state = state.copy(email = email, emailError = null, generalError = null)
     }
 
     fun onPasswordChange(password: String) {
-        state = state.copy(password = password, passwordError = null)
+        state = state.copy(password = password, passwordError = null, generalError = null)
     }
 
     fun onConfirmPasswordChange(confirmPassword: String) {
-        state = state.copy(confirmPassword = confirmPassword, confirmPasswordError = null)
+        state = state.copy(confirmPassword = confirmPassword, confirmPasswordError = null, generalError = null)
     }
 
     // --- INICIO DE CAMBIOS: LÓGICA DE REGISTRO CON ROOM ---
@@ -87,10 +87,10 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
             } catch (e: Exception) {
                 // Manejar cualquier error inesperado de la BD
                 e.printStackTrace()
+                println("RegistrationViewModel: Error al registrar - ${e.message}")
                 state = state.copy(
-                    isLoading = false
-                    // (Podríamos añadir un error general al 'state' si quisiéramos)
-                    // generalError = "Ocurrió un error inesperado"
+                    isLoading = false,
+                    generalError = "Error al crear la cuenta: ${e.message ?: "Error desconocido"}"
                 )
             }
         }
@@ -106,7 +106,8 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
             nameError = null,
             emailError = null,
             passwordError = null,
-            confirmPasswordError = null
+            confirmPasswordError = null,
+            generalError = null
         )
 
         var isValid = true

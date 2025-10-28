@@ -155,6 +155,18 @@ fun RegistrationScreen(
         state.confirmPasswordError?.let {
             Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
+        
+        // Display general error if present
+        state.generalError?.let {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
