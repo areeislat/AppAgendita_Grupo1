@@ -1,19 +1,15 @@
 package com.example.appagendita_grupo1.viewmodel
 
-import android.util.Patterns // Mantenemos tu import de Patterns
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-// --- INICIO DE CAMBIOS: IMPORTACIONES ---
-import com.example.appagendita_grupo1.data.local.user.UserEntity
 import com.example.appagendita_grupo1.data.repository.UserRepository
-import com.example.appagendita_grupo1.model.RegistrationState // <- Importamos el State de 'model'
+import com.example.appagendita_grupo1.model.RegistrationState
 import kotlinx.coroutines.launch
-// --- FIN DE CAMBIOS: IMPORTACIONES ---
 
-// --- CAMBIO 1: Añadir Repositorio al constructor ---
 class RegistrationViewModel(private val repository: UserRepository) : ViewModel() {
 
     var state by mutableStateOf(RegistrationState())
@@ -33,15 +29,16 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
     }
 
     fun onConfirmPasswordChange(confirmPassword: String) {
-        state = state.copy(confirmPassword = confirmPassword, confirmPasswordError = null, generalError = null)
+        state = state.copy(
+            confirmPassword = confirmPassword,
+            confirmPasswordError = null,
+            generalError = null
+        )
     }
-
-    // --- INICIO DE CAMBIOS: LÓGICA DE REGISTRO CON ROOM ---
 
     /**
      * Se llama cuando el usuario presiona el botón de registrarse.
-     * Valida los campos y luego intenta registrar al usuario en la BD.
-     * Reemplaza tu función 'register(onRegistrationSuccess: () -> Unit)'.
+     * Valida los campos y luego intenta registrar al usuario en la BD con BCrypt.
      */
     fun onRegisterClick() {
         // 1. Validar los campos de la UI primero
@@ -55,50 +52,48 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
         // 3. Lanzar una corrutina para interactuar con la BD
         viewModelScope.launch {
             try {
-                // 4. Comprobar si el usuario ya existe (usamos trim para limpiar)
-                val existingUser = repository.getUserByEmail(state.email.trim())
-                if (existingUser != null) {
-                    // El email ya está en uso, mostramos un error
-                    state = state.copy(
-                        emailError = "El email ya está en uso",
-                        isLoading = false
-                    )
-                } else {
-                    // 5. El email está disponible, creamos la entidad
-                    val newUser = UserEntity(
-                        name = state.name.trim(),
-                        email = state.email.trim(),
-                        password = state.password // (En una app real, esto debería estar hasheado)
-                    )
-
-                    // 6. Insertamos el usuario en la BD
-                    repository.registerUser(newUser)
-                    
-                    println("RegistrationViewModel: Usuario registrado exitosamente - ${newUser.email}")
-
-                    // 7. Actualizamos el estado para indicar éxito
-                    state = state.copy(
-                        registrationSuccess = true,
-                        isLoading = false
-                    )
-                    
-                    println("RegistrationViewModel: Estado actualizado - registrationSuccess = ${state.registrationSuccess}")
+                // 4. Registrar usuario con el repositorio (BCrypt hashing)
+                when (val result = repository.registerUser(
+                    name = state.name.trim(),
+                    email = state.email.trim(),
+                    password = state.password
+                )) {
+                    is UserRepository.RegistrationResult.Success -> {
+                        // 5. Actualizamos el estado para indicar éxito
+                        state = state.copy(
+                            registrationSuccess = true,
+                            isLoading = false,
+                            generalError = null
+                        )
+                    }
+                    is UserRepository.RegistrationResult.Error -> {
+                        // 6. Mostrar error específico
+                        if (result.message.contains("email", ignoreCase = true)) {
+                            state = state.copy(
+                                emailError = result.message,
+                                isLoading = false
+                            )
+                        } else {
+                            state = state.copy(
+                                generalError = result.message,
+                                isLoading = false
+                            )
+                        }
+                    }
                 }
             } catch (e: Exception) {
-                // Manejar cualquier error inesperado de la BD
+                // Manejar cualquier error inesperado
                 e.printStackTrace()
-                println("RegistrationViewModel: Error al registrar - ${e.message}")
                 state = state.copy(
-                    isLoading = false,
-                    generalError = "Error al crear la cuenta: ${e.message ?: "Error desconocido"}"
+                    generalError = "Ocurrió un error inesperado. Por favor, inténtelo de nuevo",
+                    isLoading = false
                 )
             }
         }
     }
 
     /**
-     * Función de validación privada.
-     * Es la misma lógica que tenías en tu función 'register', pero separada.
+     * Función de validación privada mejorada.
      */
     private fun validate(): Boolean {
         // Limpiamos errores previos
@@ -111,16 +106,21 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
         )
 
         var isValid = true
-        val name = state.name
-        val email = state.email
+        val name = state.name.trim()
+        val email = state.email.trim()
         val password = state.password
         val confirmPassword = state.confirmPassword
 
+        // Validar nombre
         if (name.isBlank()) {
             state = state.copy(nameError = "El nombre no puede estar vacío")
             isValid = false
+        } else if (name.length < 2) {
+            state = state.copy(nameError = "El nombre debe tener al menos 2 caracteres")
+            isValid = false
         }
 
+        // Validar email
         if (email.isBlank()) {
             state = state.copy(emailError = "El email no puede estar vacío")
             isValid = false
@@ -129,14 +129,21 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
             isValid = false
         }
 
+        // Validar contraseña
         if (password.isBlank()) {
             state = state.copy(passwordError = "La contraseña no puede estar vacía")
             isValid = false
         } else if (password.length < 6) {
             state = state.copy(passwordError = "La contraseña debe tener al menos 6 caracteres")
             isValid = false
+        } else if (!isPasswordStrong(password)) {
+            state = state.copy(
+                passwordError = "La contraseña debe contener al menos una letra y un número"
+            )
+            isValid = false
         }
 
+        // Validar confirmación de contraseña
         if (confirmPassword.isBlank()) {
             state = state.copy(confirmPasswordError = "Por favor, confirma tu contraseña")
             isValid = false
@@ -148,5 +155,19 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
         return isValid
     }
 
-    // --- FIN DE CAMBIOS: LÓGICA DE REGISTRO CON ROOM ---
+    /**
+     * Verifica que la contraseña sea fuerte.
+     */
+    private fun isPasswordStrong(password: String): Boolean {
+        val hasLetter = password.any { it.isLetter() }
+        val hasDigit = password.any { it.isDigit() }
+        return hasLetter && hasDigit
+    }
+
+    /**
+     * Resetea el estado del registro (útil para navegación)
+     */
+    fun resetState() {
+        state = RegistrationState()
+    }
 }

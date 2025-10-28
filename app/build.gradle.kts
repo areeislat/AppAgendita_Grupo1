@@ -78,4 +78,7 @@ dependencies {
 
     // Security Crypto for encrypted SharedPreferences
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    
+    // BCrypt for password hashing
+    implementation("org.mindrot:jbcrypt:0.4")
 }

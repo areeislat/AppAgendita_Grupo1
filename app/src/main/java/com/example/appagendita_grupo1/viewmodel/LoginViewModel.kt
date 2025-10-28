@@ -6,14 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-// --- INICIO DE CAMBIOS: IMPORTACIONES ---
 import com.example.appagendita_grupo1.data.repository.UserRepository
-import com.example.appagendita_grupo1.model.LoginState // <- Importamos el State de 'model'
+import com.example.appagendita_grupo1.model.LoginState
 import com.example.appagendita_grupo1.utils.SessionManager
 import kotlinx.coroutines.launch
-// --- FIN DE CAMBIOS: IMPORTACIONES ---
 
-// --- CAMBIO 1: Añadir Repositorio y SessionManager al constructor ---
 class LoginViewModel(
     private val repository: UserRepository,
     private val sessionManager: SessionManager
@@ -30,11 +27,9 @@ class LoginViewModel(
         state = state.copy(password = password, passwordError = null, generalError = null)
     }
 
-    // --- INICIO DE CAMBIOS: LÓGICA DE LOGIN CON ROOM ---
-
     /**
      * Se llama cuando el usuario presiona el botón de Iniciar Sesión.
-     * Reemplaza tu función 'login(onLoginSuccess: () -> Unit)'.
+     * Implementa autenticación segura con BCrypt y gestión de sesiones.
      */
     fun onLoginClick() {
         // 1. Validar campos
@@ -45,39 +40,41 @@ class LoginViewModel(
         // 2. Mostrar 'loading'
         state = state.copy(isLoading = true)
 
-        // 3. Lanzar corrutina para la BD
+        // 3. Lanzar corrutina para la autenticación
         viewModelScope.launch {
             try {
-                // 4. Intentar hacer login con el repositorio
-                val user = repository.login(
+                // 4. Intentar hacer login con el repositorio (BCrypt validation)
+                when (val result = repository.login(
                     email = state.email.trim(),
                     password = state.password
-                )
-
-                if (user != null) {
-                    // 5. ¡Éxito! El usuario existe - guardar sesión
-                    sessionManager.saveSession(
-                        userId = user.id,
-                        userEmail = user.email,
-                        userName = user.name
-                    )
-                    
-                    state = state.copy(
-                        loginSuccess = true,
-                        isLoading = false
-                    )
-                } else {
-                    // 6. Fracaso. Email o contraseña incorrectos.
-                    state = state.copy(
-                        generalError = "Email o contraseña incorrectos",
-                        isLoading = false
-                    )
+                )) {
+                    is UserRepository.AuthResult.Success -> {
+                        // 5. ¡Éxito! El usuario está autenticado - guardar sesión
+                        sessionManager.saveSession(
+                            userId = result.user.id,
+                            userEmail = result.user.email,
+                            userName = result.user.name
+                        )
+                        
+                        state = state.copy(
+                            loginSuccess = true,
+                            isLoading = false,
+                            generalError = null
+                        )
+                    }
+                    is UserRepository.AuthResult.Error -> {
+                        // 6. Fracaso. Mostrar error específico.
+                        state = state.copy(
+                            generalError = result.message,
+                            isLoading = false
+                        )
+                    }
                 }
             } catch (e: Exception) {
-                // 7. Error inesperado de la BD
+                // 7. Error inesperado
                 e.printStackTrace()
                 state = state.copy(
-                    generalError = "Ocurrió un error inesperado",
+                    generalError = "Ocurrió un error inesperado: ${e.message}",
                     isLoading = false
                 )
             }
@@ -121,6 +118,4 @@ class LoginViewModel(
 
         return isValid
     }
-
-    // --- FIN DE CAMBIOS: LÓGICA DE LOGIN CON ROOM ---
 }

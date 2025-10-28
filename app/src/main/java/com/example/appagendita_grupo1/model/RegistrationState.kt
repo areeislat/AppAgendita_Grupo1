@@ -11,7 +11,6 @@ data class RegistrationState(
     val confirmPasswordError: String? = null,
     val isLoading: Boolean = false,
 
-    // --- INICIO DE CAMBIOS ---
     /**
      * Se pondrá en 'true' cuando el VM
      * haya guardado al usuario en la BD exitosamente.
@@ -20,8 +19,7 @@ data class RegistrationState(
     val registrationSuccess: Boolean = false,
     
     /**
-     * Error general que no está asociado a un campo específico
+     * Para errores que no son de un campo específico
      */
     val generalError: String? = null
-    // --- FIN DE CAMBIOS ---
 )
