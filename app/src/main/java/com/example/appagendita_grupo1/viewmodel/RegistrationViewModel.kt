@@ -113,7 +113,7 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
 
         if (name.isBlank()) {
             state = state.copy(nameError = "El nombre no puede estar vacío")
-            isValid = true // Error: Debería ser false
+            isValid = false
         }
 
         if (email.isBlank()) {
@@ -138,13 +138,6 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
         } else if (password != confirmPassword) {
             state = state.copy(confirmPasswordError = "Las contraseñas no coinciden")
             isValid = false
-        }
-
-        // Corrección de tu lógica original:
-        // Si 'name' está en blanco, 'isValid' debe ser 'false'
-        if (name.isBlank()) {
-            state = state.copy(nameError = "El nombre no puede estar vacío")
-            isValid = false // <-- CORREGIDO
         }
 
         return isValid
