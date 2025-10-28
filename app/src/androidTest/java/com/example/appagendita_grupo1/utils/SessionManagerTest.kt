@@ -10,7 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Unit tests for SessionManager
+ * Instrumented tests for SessionManager
  * These are instrumented tests because SessionManager requires Android Context
  */
 @RunWith(AndroidJUnit4::class)
@@ -22,7 +22,7 @@ class SessionManagerTest {
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-        sessionManager = SessionManager(context)
+        sessionManager = SessionManager.getInstance(context)
         // Clear any existing session before each test
         sessionManager.clearSession()
     }
@@ -101,8 +101,8 @@ class SessionManagerTest {
         val userName = "Persist User"
         sessionManager.saveSession(userId, userEmail, userName)
 
-        // When - create a new SessionManager instance (simulating app restart)
-        val newSessionManager = SessionManager(context)
+        // When - get a new SessionManager instance using singleton (simulating app restart)
+        val newSessionManager = SessionManager.getInstance(context)
 
         // Then - session data should still be available
         assertTrue(newSessionManager.isLoggedIn())
