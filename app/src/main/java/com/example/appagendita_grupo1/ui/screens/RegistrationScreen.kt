@@ -53,7 +53,9 @@ fun RegistrationScreen(
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = state.registrationSuccess) {
+        println("RegistrationScreen: LaunchedEffect triggered - registrationSuccess = ${state.registrationSuccess}")
         if (state.registrationSuccess) {
+            println("RegistrationScreen: Calling onRegistrationSuccess()")
             onRegistrationSuccess()
         }
     }

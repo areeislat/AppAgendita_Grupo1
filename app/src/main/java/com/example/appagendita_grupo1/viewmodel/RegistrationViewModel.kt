@@ -73,12 +73,16 @@ class RegistrationViewModel(private val repository: UserRepository) : ViewModel(
 
                     // 6. Insertamos el usuario en la BD
                     repository.registerUser(newUser)
+                    
+                    println("RegistrationViewModel: Usuario registrado exitosamente - ${newUser.email}")
 
                     // 7. Actualizamos el estado para indicar éxito
                     state = state.copy(
                         registrationSuccess = true,
                         isLoading = false
                     )
+                    
+                    println("RegistrationViewModel: Estado actualizado - registrationSuccess = ${state.registrationSuccess}")
                 }
             } catch (e: Exception) {
                 // Manejar cualquier error inesperado de la BD
