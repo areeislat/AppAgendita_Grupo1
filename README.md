@@ -144,11 +144,9 @@ Sigue estos pasos para compilar y ejecutar el proyecto:
 
 Este proyecto fue desarrollado por los miembros del **Grupo 1**:
 
-* **Matías [Apellido]** – Desarrollador Principal
-* **[Nombre Completo]** – [Rol en el Proyecto]
-* **[Nombre Completo]** – [Rol en el Proyecto]
-
-*(Completa esta sección con los integrantes del grupo.)*
+* **Domingo Velazquez** 
+* **Areliz Isla** 
+* **Matias Araos** 
 
 ---
 
