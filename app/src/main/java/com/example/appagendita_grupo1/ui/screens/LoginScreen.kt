@@ -73,7 +73,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Bienvenido de vuelta",
+            text = "Bienvenido",
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center
         )
