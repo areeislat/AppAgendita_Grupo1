@@ -216,7 +216,10 @@ fun RegistrationScreenPreview() {
         override suspend fun updatePassword(userId: Long, hashedPassword: String, updatedAt: Long) {}
     }
     val fakeRepository = UserRepository(fakeDao)
-    val fakeViewModel = RegistrationViewModel(fakeRepository)
+    val fakeApiService = com.example.appagendita_grupo1.data.remote.RetrofitClient.instance
+    val fakeContext = androidx.compose.ui.platform.LocalContext.current
+    val fakeSessionManager = com.example.appagendita_grupo1.utils.SessionManager.getInstance(fakeContext)
+    val fakeViewModel = RegistrationViewModel(fakeRepository, fakeApiService, fakeSessionManager)
 
     RegistrationScreen(
         onRegistrationSuccess = {},

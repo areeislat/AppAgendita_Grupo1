@@ -35,7 +35,6 @@ class AgendaVirtualApp : Application() {
     override fun onCreate() {
         super.onCreate()
         // Any application-level initialization can go here
-        // For example, initializing logging, analytics, etc.
     }
 
     companion object {

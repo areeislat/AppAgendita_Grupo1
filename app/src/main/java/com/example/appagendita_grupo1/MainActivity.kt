@@ -37,9 +37,12 @@ import com.example.appagendita_grupo1.viewmodel.NavigationViewModel
 
 // --- IMPORTACIONES DE ROOM (NOTAS) ---
 import com.example.appagendita_grupo1.data.local.database.AgendaVirtualDatabase
+import com.example.appagendita_grupo1.data.remote.RetrofitClient
 import com.example.appagendita_grupo1.data.repository.NoteRepository
 import com.example.appagendita_grupo1.viewmodel.AddNoteViewModel
 import com.example.appagendita_grupo1.viewmodel.AddNoteViewModelFactory
+import com.example.appagendita_grupo1.viewmodel.AddTaskViewModel
+import com.example.appagendita_grupo1.viewmodel.AddTaskViewModelFactory
 import com.example.appagendita_grupo1.viewmodel.NoteListViewModelFactory
 
 // --- INICIO DE CAMBIOS: IMPORTACIONES DE USER ---
@@ -79,6 +82,9 @@ class MainActivity : ComponentActivity() {
                 // Instancia de SessionManager
                 val sessionManager = remember { SessionManager.getInstance(applicationContext) }
 
+                // Instancia de ApiService (Retrofit)
+                val apiService = remember { RetrofitClient.instance }
+
                 // --- Dependencias de Notas ---
                 val noteDao = remember { database.noteDao() }
                 val noteRepository = remember { NoteRepository(noteDao, sessionManager) }
@@ -89,6 +95,11 @@ class MainActivity : ComponentActivity() {
                     NoteListViewModelFactory(noteRepository)
                 }
 
+                // Factory para AddTaskViewModel (usa Retrofit internamente)
+                val addTaskViewModelFactory = remember {
+                    AddTaskViewModelFactory()
+                }
+
                 // --- INICIO DE CAMBIOS: DEPENDENCIAS DE USER ---
                 val userDao = remember { database.userDao() }
                 val userRepository = remember { UserRepository(userDao) }
@@ -96,8 +107,8 @@ class MainActivity : ComponentActivity() {
                 val loginViewModelFactory = remember(userRepository, sessionManager) {
                     LoginViewModelFactory(userRepository, sessionManager)
                 }
-                val registrationViewModelFactory = remember(userRepository) {
-                    RegistrationViewModelFactory(userRepository)
+                val registrationViewModelFactory = remember(userRepository, sessionManager) {
+                    RegistrationViewModelFactory(userRepository, apiService, sessionManager)
                 }
                 // --- FIN DE CAMBIOS: DEPENDENCIAS DE USER ---
 
@@ -203,8 +214,12 @@ class MainActivity : ComponentActivity() {
                         AboutSettingsScreen(onNavigate = go)
                     }
                     composable(Routes.AddTask) {
+                        val addTaskViewModel: AddTaskViewModel = viewModel(
+                            factory = addTaskViewModelFactory
+                        )
                         AddTaskScreen(
-                            onBack = { go(NavEvent.Back) }
+                            viewModel = addTaskViewModel,
+                            onNavigateBack = { go(NavEvent.Back) }
                         )
                     }
                     composable(Routes.AddNote) {
