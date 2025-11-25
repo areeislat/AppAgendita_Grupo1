@@ -7,6 +7,7 @@ plugins {
     // Aplica el plugin KSP
     alias(libs.plugins.ksp)
     // --- FIN DE CAMBIOS ---
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -69,6 +70,10 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.3.0")
     implementation("com.google.accompanist:accompanist-permissions:0.37.3")
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("javax.inject:javax.inject:1")
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    ksp("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // --- INICIO DE CAMBIOS (DEPENDENCIAS DE ROOM) ---
     implementation(libs.androidx.room.runtime) // Runtime de Room

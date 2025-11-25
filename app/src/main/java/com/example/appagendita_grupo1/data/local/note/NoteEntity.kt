@@ -3,14 +3,16 @@ package com.example.appagendita_grupo1.data.local.note
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "notes") // Define el nombre de la tabla
+@Entity(tableName = "notes")
 data class NoteEntity(
-    @PrimaryKey(autoGenerate = true) // Clave primaria autoincremental
-    val id: Long = 0L,
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0L, // El ID local de la nota sigue siendo Long (autogenerado por Room)
 
     val title: String,
     val description: String,
-    val imageUri: String?, // Guardamos la Uri como String (puede ser nulo)
-    val userId: Long = 0L // Foreign key to associate note with user
-    // Puedes añadir más campos aquí (fecha de creación, etc.) si lo necesitas
+    val imageUri: String?,
+
+    // --- CAMBIO: userId ahora es String ---
+    // Esto nos permite guardar el UUID que viene del backend (ej: "550e8400-e29b...")
+    val userId: String
 )

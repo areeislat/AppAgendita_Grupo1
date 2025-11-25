@@ -35,26 +35,26 @@ import com.example.appagendita_grupo1.ui.screens.home.HomeSection
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
 import com.example.appagendita_grupo1.viewmodel.NavigationViewModel
 
-// --- IMPORTACIONES DE ROOM (NOTAS) ---
+// --- IMPORTACIONES DE ROOM Y RETROFIT ---
 import com.example.appagendita_grupo1.data.local.database.AgendaVirtualDatabase
 import com.example.appagendita_grupo1.data.remote.RetrofitClient
 import com.example.appagendita_grupo1.data.repository.NoteRepository
 import com.example.appagendita_grupo1.viewmodel.AddNoteViewModel
 import com.example.appagendita_grupo1.viewmodel.AddNoteViewModelFactory
 import com.example.appagendita_grupo1.viewmodel.AddTaskViewModel
-import com.example.appagendita_grupo1.viewmodel.AddTaskViewModelFactory
 import com.example.appagendita_grupo1.viewmodel.NoteListViewModelFactory
 
-// --- INICIO DE CAMBIOS: IMPORTACIONES DE USER ---
+// --- IMPORTACIONES DE USER ---
 import com.example.appagendita_grupo1.data.repository.UserRepository
 import com.example.appagendita_grupo1.viewmodel.LoginViewModel
-import com.example.appagendita_grupo1.viewmodel.LoginViewModelFactory
 import com.example.appagendita_grupo1.viewmodel.RegistrationViewModel
-import com.example.appagendita_grupo1.viewmodel.RegistrationViewModelFactory
 import com.example.appagendita_grupo1.utils.SessionManager
-// --- FIN DE CAMBIOS: IMPORTACIONES DE USER ---
 
+// --- IMPORTACIONES DE HILT ---
+import dagger.hilt.android.AndroidEntryPoint
+import androidx.hilt.navigation.compose.hiltViewModel
 
+@AndroidEntryPoint
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,25 +69,21 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val navVM: NavigationViewModel = viewModel()
 
-                // Callback centralizado para navegar con eventos tipados
+                // Callback centralizado para navegar
                 val go: (NavEvent) -> Unit = remember(navController) {
                     { event -> navVM.onNavEvent(navController, event) }
                 }
 
-                // --- CREACIÓN DE DEPENDENCIAS (ROOM) ---
-
-                // Instancia de la Base de Datos
+                // --- DEPENDENCIAS GLOBALES (Aún necesarias para NoteRepository manual) ---
                 val database = remember { AgendaVirtualDatabase.getInstance(applicationContext) }
-
-                // Instancia de SessionManager
                 val sessionManager = remember { SessionManager.getInstance(applicationContext) }
-
-                // Instancia de ApiService (Retrofit)
                 val apiService = remember { RetrofitClient.instance }
-
-                // --- Dependencias de Notas ---
                 val noteDao = remember { database.noteDao() }
-                val noteRepository = remember { NoteRepository(noteDao, sessionManager) }
+
+                // --- NOTA: AddNoteViewModel aún usa Factory manual, lo mantenemos por ahora ---
+                val noteRepository = remember {
+                    NoteRepository(noteDao, apiService, sessionManager)
+                }
                 val addNoteViewModelFactory = remember(noteRepository) {
                     AddNoteViewModelFactory(noteRepository)
                 }
@@ -95,25 +91,10 @@ class MainActivity : ComponentActivity() {
                     NoteListViewModelFactory(noteRepository)
                 }
 
-                // Factory para AddTaskViewModel (usa Retrofit internamente)
-                val addTaskViewModelFactory = remember {
-                    AddTaskViewModelFactory()
-                }
+                // --- ELIMINADO: Factories manuales de User (Login/Register) ---
+                // Ya no las necesitamos porque usamos Hilt
 
-                // --- INICIO DE CAMBIOS: DEPENDENCIAS DE USER ---
-                val userDao = remember { database.userDao() }
-                val userRepository = remember { UserRepository(userDao) }
-
-                val loginViewModelFactory = remember(userRepository, sessionManager) {
-                    LoginViewModelFactory(userRepository, sessionManager)
-                }
-                val registrationViewModelFactory = remember(userRepository, sessionManager) {
-                    RegistrationViewModelFactory(userRepository, apiService, sessionManager)
-                }
-                // --- FIN DE CAMBIOS: DEPENDENCIAS DE USER ---
-
-
-                // grafico de navegación
+                // GRAFICO DE NAVEGACIÓN
                 NavHost(
                     navController = navController,
                     startDestination = if (sessionManager.isSessionValid()) Routes.Home else Routes.Splash
@@ -122,32 +103,30 @@ class MainActivity : ComponentActivity() {
                         SplashScreen(onContinue = { go(NavEvent.ToLogin) })
                     }
 
-                    // --- INICIO DE CAMBIOS: RUTA Login ---
+                    // --- RUTA Login (MIGRADA A HILT) ---
                     composable(Routes.Login) {
-                        val loginViewModel: LoginViewModel = viewModel(
-                            factory = loginViewModelFactory
-                        )
+                        // Usamos hiltViewModel() para inyección automática
+                        val loginViewModel: LoginViewModel = hiltViewModel()
+
                         LoginScreen(
                             onLoginSuccess = { go(NavEvent.ToHome()) },
                             onNavigateToRegistration = { go(NavEvent.ToRegistration) },
                             onNavigateToSplash = { go(NavEvent.BackToSplash) },
-                            viewModel = loginViewModel // <-- Pasamos el ViewModel
+                            viewModel = loginViewModel
                         )
                     }
-                    // --- FIN DE CAMBIOS: RUTA Login ---
 
-                    // --- INICIO DE CAMBIOS: RUTA Registration ---
+                    // --- RUTA Registration (MIGRADA A HILT) ---
                     composable(Routes.Registration) {
-                        val registrationViewModel: RegistrationViewModel = viewModel(
-                            factory = registrationViewModelFactory
-                        )
+                        // Usamos hiltViewModel() para inyección automática
+                        val registrationViewModel: RegistrationViewModel = hiltViewModel()
+
                         RegistrationScreen(
                             onRegistrationSuccess = { go(NavEvent.ToLoginFromRegistration) },
                             onNavigateToLogin = { go(NavEvent.Back) },
-                            viewModel = registrationViewModel // <-- Pasamos el ViewModel
+                            viewModel = registrationViewModel
                         )
                     }
-                    // --- FIN DE CAMBIOS: RUTA Registration ---
 
                     composable(
                         route = "${Routes.Home}?section={section}",
@@ -165,6 +144,7 @@ class MainActivity : ComponentActivity() {
                             noteListViewModelFactory = noteListViewModelFactory
                         )
                     }
+
                     composable(Routes.Account) {
                         AccountScreen(
                             onEditProfile = { go(NavEvent.ToAccountEdit) },
@@ -184,44 +164,25 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                    composable(Routes.AccountEdit) {
-                        EditAccountScreen(
-                            onBack = { go(NavEvent.Back) },
-                            onSave = { _, _, _, _ -> go(NavEvent.Back) }
-                        )
-                    }
-                    composable(Routes.Detail) {
-                        DetailScreen(
-                            onBack = { go(NavEvent.Back) },
-                            onNavigate = go
-                        )
-                    }
-                    composable(Routes.Settings) {
-                        SettingsScreen(
-                            onNavigate = go
-                        )
-                    }
-                    composable(Routes.SettingsSecurity) {
-                        SecuritySettingsScreen(onNavigate = go)
-                    }
-                    composable(Routes.SettingsHelp) {
-                        HelpSettingsScreen(onNavigate = go)
-                    }
-                    composable(Routes.SettingsLanguage) {
-                        LanguageSettingsScreen(onNavigate = go)
-                    }
-                    composable(Routes.SettingsAbout) {
-                        AboutSettingsScreen(onNavigate = go)
-                    }
+
+                    // ... (Resto de rutas: AccountEdit, Detail, Settings... se mantienen igual) ...
+                    composable(Routes.AccountEdit) { EditAccountScreen(onBack = { go(NavEvent.Back) }, onSave = { _, _, _, _ -> go(NavEvent.Back) }) }
+                    composable(Routes.Detail) { DetailScreen(onBack = { go(NavEvent.Back) }, onNavigate = go) }
+                    composable(Routes.Settings) { SettingsScreen(onNavigate = go) }
+                    composable(Routes.SettingsSecurity) { SecuritySettingsScreen(onNavigate = go) }
+                    composable(Routes.SettingsHelp) { HelpSettingsScreen(onNavigate = go) }
+                    composable(Routes.SettingsLanguage) { LanguageSettingsScreen(onNavigate = go) }
+                    composable(Routes.SettingsAbout) { AboutSettingsScreen(onNavigate = go) }
+
+                    // --- RUTA AddTask (YA ERA HILT) ---
                     composable(Routes.AddTask) {
-                        val addTaskViewModel: AddTaskViewModel = viewModel(
-                            factory = addTaskViewModelFactory
-                        )
+                        val addTaskViewModel: AddTaskViewModel = hiltViewModel()
                         AddTaskScreen(
                             viewModel = addTaskViewModel,
                             onNavigateBack = { go(NavEvent.Back) }
                         )
                     }
+
                     composable(Routes.AddNote) {
                         val addNoteViewModel: AddNoteViewModel = viewModel(
                             factory = addNoteViewModelFactory
