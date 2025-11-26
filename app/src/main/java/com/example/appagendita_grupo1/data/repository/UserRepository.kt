@@ -1,5 +1,6 @@
 package com.example.appagendita_grupo1.data.repository
 
+import android.util.Log
 import com.example.appagendita_grupo1.data.local.user.UserDao
 import com.example.appagendita_grupo1.data.local.user.UserEntity
 import com.example.appagendita_grupo1.data.remote.ApiService
@@ -18,6 +19,10 @@ class UserRepository @Inject constructor(
     private val apiService: ApiService
 ) {
 
+    companion object {
+        private const val TAG = "UserRepository"
+    }
+
     // Clases selladas para manejar los resultados de la UI de forma limpia
     sealed class AuthResult {
         data class Success(val response: LoginResponse) : AuthResult()
@@ -34,11 +39,15 @@ class UserRepository @Inject constructor(
      */
     suspend fun login(email: String, password: String): AuthResult {
         return try {
+            Log.d(TAG, "Intentando login para: $email")
             val request = LoginRequest(usernameOrEmail = email, password = password)
             val response = apiService.loginUser(request)
 
+            Log.d(TAG, "Respuesta recibida - Código: ${response.code()}, Exitosa: ${response.isSuccessful}")
+
             if (response.isSuccessful && response.body() != null) {
                 val loginResponse = response.body()!!
+                Log.d(TAG, "Login exitoso - Usuario ID: ${loginResponse.user.id}")
 
                 // Guardar usuario en caché local (SQLite) para uso offline básico
                 saveUserToCache(loginResponse.user)
@@ -47,10 +56,26 @@ class UserRepository @Inject constructor(
             } else {
                 // Intentar leer el mensaje de error del cuerpo, si existe
                 val errorMsg = response.errorBody()?.string() ?: "Error desconocido"
-                AuthResult.Error("Error al iniciar sesión: $errorMsg")
+                val httpCode = response.code()
+                Log.e(TAG, "Error HTTP $httpCode: $errorMsg")
+                AuthResult.Error("Error al iniciar sesión (código $httpCode): $errorMsg")
             }
+        } catch (e: com.google.gson.JsonSyntaxException) {
+            // Error específico de parseo JSON
+            Log.e(TAG, "Error de parseo JSON", e)
+            AuthResult.Error("Error de formato en la respuesta del servidor: ${e.message}")
+        } catch (e: java.net.UnknownHostException) {
+            // Error de conexión - servidor no encontrado
+            Log.e(TAG, "Servidor no encontrado", e)
+            AuthResult.Error("No se pudo conectar al servidor. Verifica tu conexión.")
+        } catch (e: java.net.SocketTimeoutException) {
+            // Timeout
+            Log.e(TAG, "Timeout en la conexión", e)
+            AuthResult.Error("Tiempo de espera agotado. Intenta nuevamente.")
         } catch (e: Exception) {
-            AuthResult.Error("Error de conexión: ${e.message}")
+            // Cualquier otro error
+            Log.e(TAG, "Error inesperado en login", e)
+            AuthResult.Error("Error inesperado: ${e.javaClass.simpleName} - ${e.message}")
         }
     }
 
