@@ -20,12 +20,8 @@ fun HomeScreen(
             onOpenAccount = { onNavigate(NavEvent.ToAccount) },
             onAddTask = { onNavigate(NavEvent.ToAddTask) },
             onAddNote = { onNavigate(NavEvent.ToAddNote) },
-            // --- INICIO CORRECCIÓN 1 ---
             onAddTeam = { onNavigate(NavEvent.ToAddTeam) }, // <- CORREGIDO: Era ToToAddTeam
-            // --- FIN CORRECCIÓN 1 ---
-            // --- INICIO CORRECCIÓN 2 ---
             onAddEvent = { onNavigate(NavEvent.ToAddEvent) }, // <- CORREGIDO: Era ToAddTask
-            // --- FIN CORRECCIÓN 2 ---
             section = section,
             noteListViewModelFactory = noteListViewModelFactory // <-- Pasársela a HomeCompact
         )
@@ -36,12 +32,8 @@ fun HomeScreen(
             onOpenAccount = { onNavigate(NavEvent.ToAccount) },
             onAddTask = { onNavigate(NavEvent.ToAddTask) },
             onAddNote = { onNavigate(NavEvent.ToAddNote) },
-            // --- INICIO CORRECCIÓN 1 ---
             onAddTeam = { onNavigate(NavEvent.ToAddTeam) }, // <- CORREGIDO
-            // --- FIN CORRECCIÓN 1 ---
-            // --- INICIO CORRECCIÓN 2 ---
             onAddEvent = { onNavigate(NavEvent.ToAddEvent) }, // <- CORREGIDO
-            // --- FIN CORRECCIÓN 2 ---
             section = section,
             noteListViewModelFactory = noteListViewModelFactory // <-- Pasársela
         )
@@ -52,12 +44,8 @@ fun HomeScreen(
             onOpenAccount = { onNavigate(NavEvent.ToAccount) },
             onAddTask = { onNavigate(NavEvent.ToAddTask) },
             onAddNote = { onNavigate(NavEvent.ToAddNote) },
-            // --- INICIO CORRECCIÓN 1 ---
             onAddTeam = { onNavigate(NavEvent.ToAddTeam) }, // <- CORREGIDO
-            // --- FIN CORRECCIÓN 1 ---
-            // --- INICIO CORRECCIÓN 2 ---
             onAddEvent = { onNavigate(NavEvent.ToAddEvent) }, // <- CORREGIDO
-            // --- FIN CORRECCIÓN 2 ---
             section = section,
             noteListViewModelFactory = noteListViewModelFactory // <-- Pasársela
         )
