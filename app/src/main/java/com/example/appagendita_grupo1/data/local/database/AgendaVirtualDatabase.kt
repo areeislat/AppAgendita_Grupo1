@@ -4,72 +4,67 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.appagendita_grupo1.data.local.database.converters.LocalDateTimeConverter
+import com.example.appagendita_grupo1.data.local.event.EventDao
+import com.example.appagendita_grupo1.data.local.event.EventEntity
 import com.example.appagendita_grupo1.data.local.note.NoteDao
 import com.example.appagendita_grupo1.data.local.note.NoteEntity
-// --- INICIO DE CAMBIOS: IMPORTAR USER ---
 import com.example.appagendita_grupo1.data.local.user.UserDao
 import com.example.appagendita_grupo1.data.local.user.UserEntity
-// --- FIN DE CAMBIOS: IMPORTAR USER ---
 
-// Define las entidades (tablas) y la versión de la base de datos
 @Database(
     entities = [
         NoteEntity::class,
-        UserEntity::class
+        UserEntity::class,
+        EventEntity::class
     ],
-    version = 4,            // Incrementado a 4 para session management y user-specific notes
+    version = 5,
     exportSchema = false
 )
+@TypeConverters(LocalDateTimeConverter::class)
 abstract class AgendaVirtualDatabase : RoomDatabase() {
 
-    // Expone el DAO para las notas
     abstract fun noteDao(): NoteDao
-
-    // --- INICIO DE CAMBIOS: AÑADIR NUEVO DAO ---
-    // Expone el DAO para los usuarios
     abstract fun userDao(): UserDao
-    // --- FIN DE CAMBIOS: AÑADIR NUEVO DAO ---
+    abstract fun eventDao(): EventDao
 
     companion object {
-        @Volatile // Asegura que la instancia sea visible inmediatamente para todos los hilos
+        @Volatile
         private var INSTANCE: AgendaVirtualDatabase? = null
         private const val DATABASE_NAME = "agenda_virtual.db"
 
-        // Migration from version 2 to 3: Add userId column to notes table
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // Add userId column with default value 0 for existing notes
                 database.execSQL("ALTER TABLE notes ADD COLUMN userId INTEGER NOT NULL DEFAULT 0")
             }
         }
-        
-        // Migration from version 3 to 4: No schema changes, just version bump
+
         private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // No changes needed, just version increment to fix migration issues
             }
         }
 
-        // Obtiene la instancia Singleton de la base de datos
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS `events` (`id` TEXT NOT NULL, `ownerId` TEXT NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `eventTimestamp` TEXT NOT NULL, `location` TEXT, `createdAt` TEXT NOT NULL, `updatedAt` TEXT, PRIMARY KEY(`id`))")
+            }
+        }
+
         fun getInstance(context: Context): AgendaVirtualDatabase {
-            // Si ya existe la instancia, la devuelve. Si no, la crea de forma segura (synchronized).
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AgendaVirtualDatabase::class.java,
                     DATABASE_NAME
                 )
-                    // Add migration strategy
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
-                    // NOTA IMPORTANTE:
-                    // fallbackToDestructiveMigration() borrará la base de datos si no hay migración disponible
-                    // Esto es útil para desarrollo, pero en producción deberías manejar migraciones apropiadamente
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
-                instance // Devuelve la instancia recién creada
+                instance
             }
         }
     }
