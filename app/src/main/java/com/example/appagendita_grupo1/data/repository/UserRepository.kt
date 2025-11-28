@@ -1,201 +1,118 @@
 package com.example.appagendita_grupo1.data.repository
 
+import android.util.Log
 import com.example.appagendita_grupo1.data.local.user.UserDao
 import com.example.appagendita_grupo1.data.local.user.UserEntity
-import org.mindrot.jbcrypt.BCrypt
-import java.util.UUID
+import com.example.appagendita_grupo1.data.remote.ApiService
+import com.example.appagendita_grupo1.data.remote.request.LoginRequest
+import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
+import com.example.appagendita_grupo1.data.remote.response.LoginResponse
+import com.example.appagendita_grupo1.data.remote.response.UserResponse
+import javax.inject.Inject
 
 /**
- * Repositorio para gestionar las operaciones de Usuario (Login, Registro).
- * Actúa como intermediario entre los ViewModels (Auth) y el UserDao.
+ * Repositorio encargado de la autenticación y gestión de usuarios vía API.
+ * Mantiene una caché local básica mediante UserDao.
  */
-class UserRepository(private val userDao: UserDao) {
+class UserRepository @Inject constructor(
+    private val userDao: UserDao,
+    private val apiService: ApiService
+) {
 
     companion object {
-        // Session duration: 30 days in milliseconds
-        private const val SESSION_DURATION_MS = 30L * 24 * 60 * 60 * 1000
+        private const val TAG = "UserRepository"
     }
 
-    /**
-     * Result classes for better error handling
-     */
+    // Clases selladas para manejar los resultados de la UI de forma limpia
     sealed class AuthResult {
-        data class Success(val user: UserEntity) : AuthResult()
+        data class Success(val response: LoginResponse) : AuthResult()
         data class Error(val message: String) : AuthResult()
     }
 
     sealed class RegistrationResult {
-        data class Success(val userId: Long) : RegistrationResult()
+        data class Success(val user: UserResponse) : RegistrationResult()
         data class Error(val message: String) : RegistrationResult()
     }
 
     /**
-     * Registra un nuevo usuario en la base de datos con contraseña hasheada.
-     */
-    suspend fun registerUser(name: String, email: String, password: String): RegistrationResult {
-        return try {
-            // Check if email already exists
-            val existingUser = userDao.getUserByEmail(email.trim())
-            if (existingUser != null) {
-                return RegistrationResult.Error("El email ya está en uso")
-            }
-
-            // Hash the password using BCrypt
-            val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
-
-            // Create new user entity
-            val newUser = UserEntity(
-                name = name.trim(),
-                email = email.trim(),
-                password = hashedPassword,
-                isActive = true,
-                createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis()
-            )
-
-            // Insert user and get ID
-            val userId = userDao.insert(newUser)
-            RegistrationResult.Success(userId)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            RegistrationResult.Error("Error al registrar usuario: ${e.message}")
-        }
-    }
-
-    /**
-     * Busca un usuario por su email.
-     * Útil para ver si un email ya está en uso durante el registro.
-     */
-    suspend fun getUserByEmail(email: String): UserEntity? {
-        return try {
-            userDao.getUserByEmail(email.trim())
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    /**
-     * Autentica a un usuario con email y contraseña.
-     * Valida la contraseña usando BCrypt y crea una sesión si es exitoso.
+     * Inicia sesión en el backend.
      */
     suspend fun login(email: String, password: String): AuthResult {
         return try {
-            // Get user by email
-            val user = userDao.getUserByEmail(email.trim())
-                ?: return AuthResult.Error("Email o contraseña incorrectos")
+            Log.d(TAG, "Intentando login para: $email")
+            val request = LoginRequest(usernameOrEmail = email, password = password)
+            val response = apiService.loginUser(request)
 
-            // Check if account is active
-            if (!user.isActive) {
-                return AuthResult.Error("Cuenta desactivada. Contacte al administrador")
+            Log.d(TAG, "Respuesta recibida - Código: ${response.code()}, Exitosa: ${response.isSuccessful}")
+
+            if (response.isSuccessful && response.body() != null) {
+                val loginResponse = response.body()!!
+                Log.d(TAG, "Login exitoso - Usuario ID: ${loginResponse.user.id}")
+
+                // Guardar usuario en caché local (SQLite) para uso offline básico
+                saveUserToCache(loginResponse.user)
+
+                AuthResult.Success(loginResponse)
+            } else {
+                // Intentar leer el mensaje de error del cuerpo, si existe
+                val errorMsg = response.errorBody()?.string() ?: "Error desconocido"
+                val httpCode = response.code()
+                Log.e(TAG, "Error HTTP $httpCode: $errorMsg")
+                AuthResult.Error("Error al iniciar sesión (código $httpCode): $errorMsg")
             }
+        } catch (e: com.google.gson.JsonSyntaxException) {
+            // Error específico de parseo JSON
+            Log.e(TAG, "Error de parseo JSON", e)
+            AuthResult.Error("Error de formato en la respuesta del servidor: ${e.message}")
+        } catch (e: java.net.UnknownHostException) {
+            // Error de conexión - servidor no encontrado
+            Log.e(TAG, "Servidor no encontrado", e)
+            AuthResult.Error("No se pudo conectar al servidor. Verifica tu conexión.")
+        } catch (e: java.net.SocketTimeoutException) {
+            // Timeout
+            Log.e(TAG, "Timeout en la conexión", e)
+            AuthResult.Error("Tiempo de espera agotado. Intenta nuevamente.")
+        } catch (e: Exception) {
+            // Cualquier otro error
+            Log.e(TAG, "Error inesperado en login", e)
+            AuthResult.Error("Error inesperado: ${e.javaClass.simpleName} - ${e.message}")
+        }
+    }
 
-            // Verify password using BCrypt
-            if (!BCrypt.checkpw(password, user.password)) {
-                return AuthResult.Error("Email o contraseña incorrectos")
-            }
-
-            // Create session token
-            val sessionToken = UUID.randomUUID().toString()
-            val currentTime = System.currentTimeMillis()
-            val expiresAt = currentTime + SESSION_DURATION_MS
-
-            // Update user session
-            userDao.updateSessionToken(
-                userId = user.id,
-                sessionToken = sessionToken,
-                sessionCreatedAt = currentTime,
-                sessionExpiresAt = expiresAt
+    /**
+     * Registra un usuario en el backend.
+     * Nota: Asumimos que 'name' se usa para First Name y Username por simplicidad.
+     */
+    suspend fun registerUser(name: String, email: String, password: String): RegistrationResult {
+        return try {
+            val request = RegisterRequest(
+                username = email.split("@")[0], // Generar username basado en email temporalmente
+                email = email,
+                password = password,
+                firstName = name,
+                lastName = "" // Opcional
             )
 
-            // Return updated user
-            val updatedUser = user.copy(
-                sessionToken = sessionToken,
-                sessionCreatedAt = currentTime,
-                sessionExpiresAt = expiresAt
-            )
+            val response = apiService.registerUser(request)
 
-            AuthResult.Success(updatedUser)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            AuthResult.Error("Error al iniciar sesión: ${e.message}")
-        }
-    }
-
-    /**
-     * Cierra la sesión de un usuario.
-     */
-    suspend fun logout(userId: Long): Boolean {
-        return try {
-            userDao.clearSession(userId)
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
-
-    /**
-     * Valida si una sesión es válida.
-     */
-    suspend fun validateSession(sessionToken: String): UserEntity? {
-        return try {
-            val user = userDao.getUserBySessionToken(sessionToken) ?: return null
-            
-            // Check if session has expired
-            val currentTime = System.currentTimeMillis()
-            if (user.sessionExpiresAt != null && user.sessionExpiresAt < currentTime) {
-                // Session expired, clear it
-                userDao.clearSession(user.id)
-                return null
+            if (response.isSuccessful && response.body() != null) {
+                RegistrationResult.Success(response.body()!!)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Error desconocido"
+                RegistrationResult.Error("Error al registrar: $errorMsg")
             }
-
-            user
         } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            RegistrationResult.Error("Error de conexión: ${e.message}")
         }
     }
 
-    /**
-     * Actualiza el perfil de un usuario.
-     */
-    suspend fun updateProfile(userId: Long, name: String): Boolean {
-        return try {
-            userDao.updateProfile(userId, name.trim())
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
-
-    /**
-     * Cambia la contraseña de un usuario.
-     */
-    suspend fun changePassword(
-        userId: Long,
-        currentPassword: String,
-        newPassword: String
-    ): Boolean {
-        return try {
-            // Get current user
-            val user = userDao.getUserById(userId) ?: return false
-
-            // Verify current password
-            if (!BCrypt.checkpw(currentPassword, user.password)) {
-                return false
-            }
-
-            // Hash new password
-            val hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt())
-
-            // Update password
-            userDao.updatePassword(userId, hashedPassword)
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+    // Helper para guardar en Room
+    private suspend fun saveUserToCache(userDto: UserResponse) {
+        val userEntity = UserEntity(
+            id = userDto.id, // UUID String
+            name = "${userDto.firstName} ${userDto.lastName}".trim(),
+            email = userDto.email
+        )
+        userDao.insert(userEntity)
     }
 }

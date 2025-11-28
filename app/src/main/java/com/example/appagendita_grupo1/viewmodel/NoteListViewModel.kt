@@ -3,27 +3,34 @@ package com.example.appagendita_grupo1.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appagendita_grupo1.data.repository.NoteRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class NoteListViewModel(private val repository: NoteRepository) : ViewModel() {
+@HiltViewModel
+class NoteListViewModel @Inject constructor(
+    private val repository: NoteRepository
+) : ViewModel() {
 
-    // Esta es la forma moderna de recolectar un Flow en un ViewModel
-    // Transforma el Flow<List<NoteEntity>> en un StateFlow<NoteListState>
+    // Convertimos el Flow del repositorio en un StateFlow para la UI
     val state: StateFlow<NoteListState> = repository.getAllNotes()
         .map { notes ->
-            // Mapea la lista de entidades al estado de la UI
+            // Si recibimos notas, actualizamos el estado
             NoteListState(notes = notes)
         }
+        .catch { e ->
+            // Si ocurre un error (ej. usuario no logueado), lo capturamos para no crashear
+            e.printStackTrace()
+            emit(NoteListState(notes = emptyList()))
+        }
         .stateIn(
-            // El scope en el que se ejecutará la corrutina
             scope = viewModelScope,
-            // Inicia la recolección 5 segundos después de que el último subscriptor desaparezca
-            // (evita reiniciar en cambios de configuración como rotar la pantalla)
+            // Mantiene la suscripción activa 5 segundos después de cerrar la UI (útil para rotación de pantalla)
             started = SharingStarted.WhileSubscribed(5000L),
-            // El estado inicial mientras se espera la primera emisión del Flow
             initialValue = NoteListState()
         )
 }

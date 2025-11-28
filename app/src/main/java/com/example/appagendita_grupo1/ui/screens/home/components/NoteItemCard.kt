@@ -95,7 +95,8 @@ fun NoteItemCardPreview_NoImage() {
         id = 1,
         title = "Reunión de equipo mañana",
         description = "Revisar los hitos del sprint 3. Traer ideas para el próximo feature. La reunión será en la sala principal a las 10:00 AM.",
-        imageUri = null // Prueba sin imagen
+        imageUri = null, // Prueba sin imagen
+        userId = "user-123" // <-- CORRECCIÓN: Añadido userId de prueba
     )
     AppAgendita_Grupo1Theme {
         Box(modifier = Modifier.padding(16.dp)) {
@@ -112,7 +113,8 @@ fun NoteItemCardPreview_WithImage() {
         title = "Idea para la foto",
         description = "Tomé esta foto para el proyecto.",
         // (La imagen de preview no cargará, pero el espacio se reservará)
-        imageUri = "file:///android_asset/logo.png"
+        imageUri = "file:///android_asset/logo.png",
+        userId = "user-123" // <-- CORRECCIÓN: Añadido userId de prueba
     )
     AppAgendita_Grupo1Theme {
         Box(modifier = Modifier.padding(16.dp)) {

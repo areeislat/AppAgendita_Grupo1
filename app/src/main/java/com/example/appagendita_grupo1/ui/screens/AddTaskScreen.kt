@@ -11,10 +11,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.appagendita_grupo1.viewmodel.AddTaskViewModel
 import com.example.appagendita_grupo1.viewmodel.TaskPriority
 import com.example.appagendita_grupo1.viewmodel.TaskCategory
+import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
+
+// --- IMPORTS PARA LA PREVIEW ---
+import com.example.appagendita_grupo1.data.remote.ApiService
+import com.example.appagendita_grupo1.data.remote.request.TaskRequest
+import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
+import com.example.appagendita_grupo1.data.remote.response.UserResponse
+import com.example.appagendita_grupo1.data.remote.request.NoteRequest
+import com.example.appagendita_grupo1.data.remote.response.NoteResponse
+import com.example.appagendita_grupo1.data.remote.request.LoginRequest
+import com.example.appagendita_grupo1.data.remote.response.LoginResponse
+import com.example.appagendita_grupo1.utils.SessionManager
+import retrofit2.Response
+// ------------------------------
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -136,16 +151,20 @@ fun AddTaskScreen(
                                 onClick = { viewModel.onPrioritySelected(priority) },
                                 label = { Text(priority.displayName) },
                                 colors = FilterChipDefaults.filterChipColors(
+                                    // --- CORRECCIÓN: Añadida la rama URGENT ---
                                     selectedContainerColor = when (priority) {
                                         TaskPriority.LOW -> MaterialTheme.colorScheme.tertiary
                                         TaskPriority.MEDIUM -> MaterialTheme.colorScheme.secondary
                                         TaskPriority.HIGH -> MaterialTheme.colorScheme.error
+                                        TaskPriority.URGENT -> MaterialTheme.colorScheme.errorContainer // Color distinto para urgente
                                     },
                                     selectedLabelColor = when (priority) {
                                         TaskPriority.LOW -> MaterialTheme.colorScheme.onTertiary
                                         TaskPriority.MEDIUM -> MaterialTheme.colorScheme.onSecondary
                                         TaskPriority.HIGH -> MaterialTheme.colorScheme.onError
+                                        TaskPriority.URGENT -> MaterialTheme.colorScheme.onErrorContainer
                                     }
+                                    // ------------------------------------------
                                 )
                             )
                         }
@@ -217,7 +236,7 @@ fun AddTaskScreen(
 
             // Botón Guardar
             Button(
-                onClick = { viewModel.saveTask(context) },
+                onClick = { viewModel.saveTask() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -231,5 +250,32 @@ fun AddTaskScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddTaskScreenPreview() {
+    val context = LocalContext.current
+
+    // --- CORRECCIÓN DE PREVIEW ---
+    val fakeApiService = object : ApiService {
+        override suspend fun createTask(taskRequest: TaskRequest): Response<Unit> = Response.success(Unit)
+        override suspend fun registerUser(registerRequest: RegisterRequest): Response<UserResponse> = Response.success(null)
+        override suspend fun loginUser(loginRequest: LoginRequest): Response<LoginResponse> = Response.success(null)
+        override suspend fun getUserNotes(userId: String): Response<List<NoteResponse>> = Response.success(emptyList())
+        override suspend fun createNote(noteRequest: NoteRequest): Response<NoteResponse> = Response.success(null)
+        override suspend fun deleteNote(noteId: String, userId: String): Response<Map<String, String>> = Response.success(emptyMap())
+        override suspend fun updateNote(noteId: String, userId: String, noteRequest: NoteRequest): Response<NoteResponse> = Response.success(null)
+    }
+
+    val fakeSessionManager = SessionManager.getInstance(context)
+    val previewViewModel = AddTaskViewModel(fakeApiService, fakeSessionManager)
+
+    AppAgendita_Grupo1Theme {
+        AddTaskScreen(
+            viewModel = previewViewModel,
+            onNavigateBack = {}
+        )
     }
 }

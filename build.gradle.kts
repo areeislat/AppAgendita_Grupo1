@@ -8,4 +8,5 @@ plugins {
     // Añade el plugin KSP (Kotlin Symbol Processing)
     alias(libs.plugins.ksp) apply false
     // --- FIN DE CAMBIOS ---
+    id("com.google.dagger.hilt.android") version "2.51.1" apply false
 }

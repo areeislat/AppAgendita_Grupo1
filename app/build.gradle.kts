@@ -2,11 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
-    // --- INICIO DE CAMBIOS ---
-    // Aplica el plugin KSP
     alias(libs.plugins.ksp)
-    // --- FIN DE CAMBIOS ---
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -69,20 +66,25 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.3.0")
     implementation("com.google.accompanist:accompanist-permissions:0.37.3")
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("javax.inject:javax.inject:1")
 
-    // --- INICIO DE CAMBIOS (DEPENDENCIAS DE ROOM) ---
-    implementation(libs.androidx.room.runtime) // Runtime de Room
-    implementation(libs.androidx.room.ktx)     // Extensiones Kotlin (Coroutines/Flow)
-    ksp(libs.androidx.room.compiler)            // Procesador de anotaciones (KSP)
-    // --- FIN DE CAMBIOS ---
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    ksp("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    // Security Crypto for encrypted SharedPreferences
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // Security Crypto
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     
-    // BCrypt for password hashing
+    // BCrypt
     implementation("org.mindrot:jbcrypt:0.4")
 
-    // Retrofit para llamadas HTTP
+    // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

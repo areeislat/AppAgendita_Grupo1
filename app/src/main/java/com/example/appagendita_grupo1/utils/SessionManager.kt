@@ -8,6 +8,8 @@ import androidx.security.crypto.MasterKey
 /**
  * SessionManager handles user session persistence using EncryptedSharedPreferences
  * for secure storage of session data.
+ *
+ * UPDATED: Now uses String (UUID) for userId to match backend.
  */
 class SessionManager(context: Context) {
 
@@ -31,16 +33,19 @@ class SessionManager(context: Context) {
 
     /**
      * Save user session after successful login/registration
-     * @param userId Local database ID (Long)
-     * @param serverUserId UUID from the API server (String)
+     *
+     * CAMBIO: userId ahora es String (UUID) y es obligatorio.
+     * Eliminamos serverUserId porque userId YA ES el del servidor.
+     *
+     * @param userId Backend UUID (String)
+     * @param authToken JWT Token
      */
-    fun saveSession(userId: Long, userEmail: String, userName: String, serverUserId: String? = null, authToken: String? = null) {
+    fun saveSession(userId: String, userEmail: String, userName: String, authToken: String? = null) {
         sharedPreferences.edit().apply {
-            putLong(KEY_USER_ID, userId)
+            putString(KEY_USER_ID, userId) // Guardamos UUID como String
             putString(KEY_USER_EMAIL, userEmail)
             putString(KEY_USER_NAME, userName)
             putBoolean(KEY_IS_LOGGED_IN, true)
-            serverUserId?.let { putString(KEY_SERVER_USER_ID, it) }
             authToken?.let { putString(KEY_AUTH_TOKEN, it) }
             apply()
         }
@@ -54,21 +59,13 @@ class SessionManager(context: Context) {
     }
 
     /**
-     * Get current logged-in user ID (local database ID)
-     * Returns null if no active session
+     * Get current logged-in user ID (UUID from Backend)
+     *
+     * CAMBIO: Ahora devuelve String? en lugar de Long?
      */
-    fun getCurrentUserId(): Long? {
+    fun getCurrentUserId(): String? {
         if (!isLoggedIn()) return null
-        val userId = sharedPreferences.getLong(KEY_USER_ID, -1L)
-        return if (userId != -1L) userId else null
-    }
-    
-    /**
-     * Get current user's server UUID
-     * Returns null if no server UUID is stored
-     */
-    fun getServerUserId(): String? {
-        return sharedPreferences.getString(KEY_SERVER_USER_ID, null)
+        return sharedPreferences.getString(KEY_USER_ID, null)
     }
 
     /**
@@ -91,7 +88,9 @@ class SessionManager(context: Context) {
      * Check if user is currently logged in
      */
     fun isLoggedIn(): Boolean {
-        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
+        // Verificamos el flag y que exista un ID válido
+        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false) &&
+                sharedPreferences.contains(KEY_USER_ID)
     }
 
     /**
@@ -100,7 +99,7 @@ class SessionManager(context: Context) {
     fun clearSession() {
         sharedPreferences.edit().apply {
             remove(KEY_USER_ID)
-            remove(KEY_SERVER_USER_ID)
+            // remove(KEY_SERVER_USER_ID) // Ya no existe
             remove(KEY_USER_EMAIL)
             remove(KEY_USER_NAME)
             remove(KEY_AUTH_TOKEN)
@@ -111,8 +110,6 @@ class SessionManager(context: Context) {
 
     /**
      * Validate if the session token is still valid
-     * In this simple implementation, we just check if session exists
-     * In production, you might want to check token expiration, etc.
      */
     fun isSessionValid(): Boolean {
         return isLoggedIn() && getCurrentUserId() != null
@@ -120,8 +117,10 @@ class SessionManager(context: Context) {
 
     companion object {
         private const val PREFS_NAME = "agenda_virtual_session"
-        private const val KEY_USER_ID = "user_id"
-        private const val KEY_SERVER_USER_ID = "server_user_id"
+
+        // Claves de Preferencias
+        private const val KEY_USER_ID = "user_id" // Ahora guardará String
+        // private const val KEY_SERVER_USER_ID = "server_user_id" // ELIMINADO
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_IS_LOGGED_IN = "is_logged_in"

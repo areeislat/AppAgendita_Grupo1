@@ -1,53 +1,62 @@
 package com.example.appagendita_grupo1.ui.screens
 
-import android.Manifest // 1. Importar Manifest
-import android.content.Context // 2. Importar Context
-import android.net.Uri // 3. Importar Uri
-import androidx.activity.compose.rememberLauncherForActivityResult // 4. Importar Launcher
-import androidx.activity.result.contract.ActivityResultContracts // 5. Importar Contrato
+import android.Manifest
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState // 6. Importar ScrollState
-import androidx.compose.foundation.verticalScroll // 7. Importar verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue // 8. Importar getValue
-import androidx.compose.runtime.mutableStateOf // 9. Importar mutableStateOf
-import androidx.compose.runtime.remember // 10. Importar remember
-import androidx.compose.runtime.setValue // 11. Importar setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale // 12. Importar ContentScale
-import androidx.compose.ui.platform.LocalContext // 13. Importar LocalContext
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider // 14. Importar FileProvider
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage // 15. Importar Coil
+import coil.compose.AsyncImage
 import com.example.appagendita_grupo1.viewmodel.AddNoteViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi // 16. Importar Accompanist
-import com.google.accompanist.permissions.rememberPermissionState // 17. Importar Accompanist
-import com.google.accompanist.permissions.PermissionStatus // <--- ¡¡CAMBIO 1: AÑADIR ESTA IMPORTACIÓN!!
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.PermissionStatus
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Objects
-import kotlinx.coroutines.flow.Flow // Necesaria para el DAO falso
-import kotlinx.coroutines.flow.flowOf // Necesaria para el DAO falso
-import com.example.appagendita_grupo1.data.local.note.NoteDao // Necesaria para el DAO falso
-import com.example.appagendita_grupo1.data.local.note.NoteEntity // Necesaria para el DAO falso
-import com.example.appagendita_grupo1.data.repository.NoteRepository // Necesaria para el repo falso
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import com.example.appagendita_grupo1.data.local.note.NoteDao
+import com.example.appagendita_grupo1.data.local.note.NoteEntity
+import com.example.appagendita_grupo1.data.repository.NoteRepository
 
-// --- INICIO CÓDIGO AÑADIDO ---
+// --- NUEVOS IMPORTS PARA LA PREVIEW ---
+import com.example.appagendita_grupo1.data.remote.ApiService
+import retrofit2.Response
+import com.example.appagendita_grupo1.data.remote.request.NoteRequest
+import com.example.appagendita_grupo1.data.remote.response.NoteResponse
+import com.example.appagendita_grupo1.data.remote.request.TaskRequest
+import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
+// NUEVOS IMPORTS PARA LOGIN MOCK
+import com.example.appagendita_grupo1.data.remote.request.LoginRequest
+import com.example.appagendita_grupo1.data.remote.response.LoginResponse
+import com.example.appagendita_grupo1.data.remote.response.UserResponse
+// --------------------------------------
 
 /**
  * Función auxiliar para crear una Uri segura usando el FileProvider.
- * La Vista es responsable de crear esto, ya que necesita el Context.
  */
 fun createImageUri(context: Context): Uri {
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.getDefault()).format(Date())
     val imageFileName = "JPEG_" + timeStamp + "_"
-    // Usamos el directorio de caché interno de la app
     val storageDir = context.cacheDir
     val imageFile = File.createTempFile(
         imageFileName,  /* prefix */
@@ -55,7 +64,6 @@ fun createImageUri(context: Context): Uri {
         storageDir      /* directory */
     )
 
-    // Obtén la autoridad del provider (definida en AndroidManifest.xml)
     val authority = "${context.packageName}.provider"
 
     return FileProvider.getUriForFile(
@@ -65,10 +73,7 @@ fun createImageUri(context: Context): Uri {
     )
 }
 
-// --- FIN CÓDIGO AÑADIDO ---
-
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class) // 18. Añadir OptIn de Accompanist
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun AddNoteScreen(
     onBack: () -> Unit,
@@ -76,20 +81,16 @@ fun AddNoteScreen(
     viewModel: AddNoteViewModel = viewModel()
 ) {
     val state = viewModel.state
-
-    // --- INICIO CÓDIGO AÑADIDO ---
-
     val context = LocalContext.current
 
     // 1. Variable temporal para guardar la Uri antes de que la cámara la use
     var tempUri by remember { mutableStateOf<Uri?>(null) }
 
-    // 2. Crear el lanzador para la cámara (ActivityResultLauncher)
+    // 2. Crear el lanzador para la cámara
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
             if (success) {
-                // Si la foto se tomó con éxito, actualiza el ViewModel
                 viewModel.onPhotoTaken(tempUri)
             }
         }
@@ -99,8 +100,6 @@ fun AddNoteScreen(
     val cameraPermissionState = rememberPermissionState(
         permission = Manifest.permission.CAMERA
     )
-
-    // --- FIN CÓDIGO AÑADIDO ---
 
     Scaffold(
         topBar = {
@@ -118,7 +117,6 @@ fun AddNoteScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
-                // 19. Hacemos la columna "scrolleable" por si la imagen es grande
                 .verticalScroll(rememberScrollState())
         ) {
             OutlinedTextField(
@@ -137,7 +135,6 @@ fun AddNoteScreen(
                 onValueChange = { viewModel.onDescriptionChange(it) },
                 label = { Text("Descripción") },
                 isError = state.descriptionError != null,
-                // 20. Ajustamos la altura del campo de descripción
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -145,11 +142,9 @@ fun AddNoteScreen(
             state.descriptionError?.let {
                 Text(text = it, color = MaterialTheme.colorScheme.error)
             }
-            Spacer(modifier = Modifier.height(16.dp)) // 21. Espacio añadido
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // --- INICIO CÓDIGO AÑADIDO ---
-
-            // 4. Mostrar la imagen si existe en el estado
+            // 4. Mostrar la imagen si existe
             if (state.imageUri != null) {
                 AsyncImage(
                     model = state.imageUri,
@@ -157,7 +152,7 @@ fun AddNoteScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp),
-                    contentScale = ContentScale.Crop // Recorta la imagen para llenar el espacio
+                    contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -165,16 +160,11 @@ fun AddNoteScreen(
             // 5. Botón para tomar la foto
             Button(
                 onClick = {
-                    // Lógica para tomar la foto
-
-                    // --- ¡¡CAMBIO 2: ASÍ ES LA NUEVA API!! ---
                     if (cameraPermissionState.status == PermissionStatus.Granted) {
-                        // Si ya tenemos permiso, crea Uri y lanza la cámara
-                        val newUri = createImageUri(context) // Creamos la Uri no nula
-                        tempUri = newUri // La guardamos en el estado temporal
-                        cameraLauncher.launch(newUri) // Lanzamos la cámara con la Uri no nula
+                        val newUri = createImageUri(context)
+                        tempUri = newUri
+                        cameraLauncher.launch(newUri)
                     } else {
-                        // Si no tenemos permiso, solicítalo
                         cameraPermissionState.launchPermissionRequest()
                     }
                 },
@@ -183,16 +173,12 @@ fun AddNoteScreen(
                 Text(if (state.imageUri == null) "Añadir Foto" else "Tomar Foto Nueva")
             }
 
-            // --- FIN CÓDIGO AÑADIDO ---
-
-            Spacer(modifier = Modifier.weight(1f)) // Esto empuja el botón de guardar al fondo
+            Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = {
                     if (viewModel.validate()) {
-                        // 22. Llamamos al ViewModel para que guarde el estado
                         viewModel.onSaveNote()
-                        // Navegamos hacia atrás
                         onNoteSaved()
                     }
                 },
@@ -208,20 +194,45 @@ fun AddNoteScreen(
 @Composable
 fun AddNoteScreenPreview() {
     val context = androidx.compose.ui.platform.LocalContext.current
-    
-    // --- INICIO CORRECCIÓN PREVIEW ---
-    // Simulación MUY BÁSICA de un repositorio para la preview
-    // No hará nada, pero satisface el constructor del ViewModel
+
+    // --- CORRECCIÓN PREVIEW ---
+
+    // 1. Creamos un ApiService falso (vacío)
+    val fakeApiService = object : ApiService {
+        override suspend fun createTask(taskRequest: TaskRequest): Response<Unit> = Response.success(Unit)
+        override suspend fun registerUser(registerRequest: RegisterRequest): Response<UserResponse> = Response.success(null)
+
+        // --- AÑADIDO: Mock para loginUser ---
+        override suspend fun loginUser(loginRequest: LoginRequest): Response<LoginResponse> = Response.success(null)
+        // -----------------------------------
+
+        // Métodos de Nota
+        override suspend fun getUserNotes(userId: String): Response<List<NoteResponse>> = Response.success(emptyList())
+        override suspend fun createNote(noteRequest: NoteRequest): Response<NoteResponse> = Response.success(null)
+        override suspend fun deleteNote(noteId: String, userId: String): Response<Map<String, String>> = Response.success(emptyMap())
+        override suspend fun updateNote(noteId: String, userId: String, noteRequest: NoteRequest): Response<NoteResponse> = Response.success(null)
+    }
+
+    // 2. Creamos el Repositorio falso con el DAO actualizado
     val fakeRepository = NoteRepository(
         noteDao = object : NoteDao {
             override suspend fun insert(note: NoteEntity): Long = 0L
             override suspend fun update(note: NoteEntity) {}
             override suspend fun delete(note: NoteEntity) {}
+
+            // Método legacy (si existe)
             override fun getAllNotes(): Flow<List<NoteEntity>> = flowOf(emptyList())
-            override fun getNotesByUserId(userId: Long): Flow<List<NoteEntity>> = flowOf(emptyList())
+
+            // CORRECCIÓN: userId ahora es String
+            override fun getNotesByUserId(userId: String): Flow<List<NoteEntity>> = flowOf(emptyList())
+
             override suspend fun getNoteById(noteId: Long): NoteEntity? = null
+
+            // --- AÑADIDO: Implementación de count() ---
             override suspend fun count(): Int = 0
         },
+        // Pasamos el ApiService falso
+        apiService = fakeApiService,
         sessionManager = com.example.appagendita_grupo1.utils.SessionManager.getInstance(context)
     )
 
@@ -231,7 +242,6 @@ fun AddNoteScreenPreview() {
     AddNoteScreen(
         onBack = {},
         onNoteSaved = {},
-        viewModel = previewViewModel // Pasamos el ViewModel simulado
+        viewModel = previewViewModel
     )
-    // --- FIN CORRECCIÓN PREVIEW ---
 }
