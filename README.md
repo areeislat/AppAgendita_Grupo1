@@ -69,6 +69,14 @@ La aplicación móvil se conecta a un **API Gateway** (puerto 8080) que distribu
 
 ---
 
+**Captura del APK firmado y .jks:**
+
+
+
+
+![Captura del APK firmado y el jks](https://github.com/user-attachments/assets/6fbadf3a-4ef9-44e3-9311-a148e04662ec)
+
+
 ## 📂 Estructura del Proyecto (Android)
 
 ```text
@@ -84,18 +92,4 @@ com.example.appagendita_grupo1
 ├── utils/              # SessionManager (Preferencias Encriptadas)
 └── viewmodel/          # ViewModels (HiltViewModel)
 
-
-##**Captura del APK firmado y .jks:**
-
-
-
-
-
-
-
-
-![Captura del APK firmado y el jks](https://github.com/user-attachments/assets/6fbadf3a-4ef9-44e3-9311-a148e04662ec)
-
-
-![Captura del APK firmado y el jks](https://github.com/user-attachments/assets/ee4e0c76-d395-4afc-9c48-1baf3067b253)
 
