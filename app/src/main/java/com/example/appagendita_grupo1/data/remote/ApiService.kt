@@ -33,6 +33,9 @@ interface ApiService {
     @POST("api/users")
     suspend fun registerUser(@Body registerRequest: RegisterRequest): Response<UserResponse>
 
+    @POST("api/events")
+    suspend fun createEvent(@Body eventRequest: EventRequest): Response<EventResponse>
+
 
     // --- NUEVOS ENDPOINTS PARA NOTAS ---
 
@@ -68,7 +71,6 @@ interface ApiService {
     @GET("api/events/user/{ownerId}")
     suspend fun getUserEvents(@Path("ownerId") ownerId: String): Response<List<EventResponse>>
 
-    @POST("api/events")
-    suspend fun createEvent(@Body eventRequest: EventRequest): Response<EventResponse>
+
 
 }

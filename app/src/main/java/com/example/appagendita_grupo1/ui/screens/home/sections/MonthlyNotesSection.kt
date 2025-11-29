@@ -30,9 +30,11 @@ import com.example.appagendita_grupo1.data.local.note.NoteDao
 import com.example.appagendita_grupo1.data.local.note.NoteEntity
 import com.example.appagendita_grupo1.data.repository.NoteRepository
 import com.example.appagendita_grupo1.data.remote.ApiService
+import com.example.appagendita_grupo1.data.remote.request.EventRequest
 import com.example.appagendita_grupo1.data.remote.request.NoteRequest
 import com.example.appagendita_grupo1.data.remote.request.TaskRequest
 import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
+import com.example.appagendita_grupo1.data.remote.response.EventResponse
 import com.example.appagendita_grupo1.data.remote.response.NoteResponse
 import com.example.appagendita_grupo1.data.remote.response.UserResponse
 // NUEVOS IMPORTS
@@ -99,6 +101,10 @@ fun MonthlyNotesSectionPreview() {
 
         // --- AÑADIDO: Mock para loginUser ---
         override suspend fun loginUser(loginRequest: LoginRequest): Response<LoginResponse> = Response.success(null)
+
+        override suspend fun createEvent(eventRequest: EventRequest): Response<EventResponse> = Response.success(null)
+
+        override suspend fun getUserEvents(ownerId: String): Response<List<EventResponse>> = Response.success(emptyList())
         // -----------------------------------
 
         override suspend fun getUserNotes(userId: String): Response<List<NoteResponse>> = Response.success(emptyList())

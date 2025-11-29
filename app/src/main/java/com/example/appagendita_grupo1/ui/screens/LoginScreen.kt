@@ -44,10 +44,12 @@ import com.example.appagendita_grupo1.data.repository.UserRepository
 import com.example.appagendita_grupo1.utils.SessionManager
 // --- IMPORTS PARA PREVIEW ---
 import com.example.appagendita_grupo1.data.remote.ApiService
+import com.example.appagendita_grupo1.data.remote.request.EventRequest
 import com.example.appagendita_grupo1.data.remote.request.LoginRequest
 import com.example.appagendita_grupo1.data.remote.request.NoteRequest
 import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
 import com.example.appagendita_grupo1.data.remote.request.TaskRequest
+import com.example.appagendita_grupo1.data.remote.response.EventResponse
 import com.example.appagendita_grupo1.data.remote.response.LoginResponse
 import com.example.appagendita_grupo1.data.remote.response.NoteResponse
 import com.example.appagendita_grupo1.data.remote.response.UserResponse
@@ -210,6 +212,8 @@ fun LoginScreenPreview() {
         override suspend fun createNote(noteRequest: NoteRequest): Response<NoteResponse> = Response.success(null)
         override suspend fun deleteNote(noteId: String, userId: String): Response<Map<String, String>> = Response.success(emptyMap())
         override suspend fun updateNote(noteId: String, userId: String, noteRequest: NoteRequest): Response<NoteResponse> = Response.success(null)
+        override suspend fun createEvent(eventRequest: EventRequest): Response<EventResponse> = Response.success(null)
+        override suspend fun getUserEvents(ownerId: String): Response<List<EventResponse>> = Response.success(emptyList())
     }
 
     // 2. Fake DAO

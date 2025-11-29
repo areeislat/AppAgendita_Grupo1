@@ -2,6 +2,7 @@ package com.example.appagendita_grupo1.ui.screens
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,44 +12,37 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.appagendita_grupo1.viewmodel.AddNoteViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.PermissionStatus
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Objects
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import com.example.appagendita_grupo1.data.local.note.NoteDao
 import com.example.appagendita_grupo1.data.local.note.NoteEntity
-import com.example.appagendita_grupo1.data.repository.NoteRepository
-
-// --- NUEVOS IMPORTS PARA LA PREVIEW ---
 import com.example.appagendita_grupo1.data.remote.ApiService
-import retrofit2.Response
-import com.example.appagendita_grupo1.data.remote.request.NoteRequest
-import com.example.appagendita_grupo1.data.remote.response.NoteResponse
-import com.example.appagendita_grupo1.data.remote.request.TaskRequest
-import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
-// NUEVOS IMPORTS PARA LOGIN MOCK
+import com.example.appagendita_grupo1.data.remote.request.EventRequest
 import com.example.appagendita_grupo1.data.remote.request.LoginRequest
+import com.example.appagendita_grupo1.data.remote.request.NoteRequest
+import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
+import com.example.appagendita_grupo1.data.remote.request.TaskRequest
+import com.example.appagendita_grupo1.data.remote.response.EventResponse
 import com.example.appagendita_grupo1.data.remote.response.LoginResponse
+import com.example.appagendita_grupo1.data.remote.response.NoteResponse
 import com.example.appagendita_grupo1.data.remote.response.UserResponse
+import com.example.appagendita_grupo1.data.repository.NoteRepository
+import com.example.appagendita_grupo1.viewmodel.AddNoteViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import retrofit2.Response
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
+
 // --------------------------------------
 
 /**
@@ -73,7 +67,7 @@ fun createImageUri(context: Context): Uri {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddNoteScreen(
     onBack: () -> Unit,
@@ -96,10 +90,23 @@ fun AddNoteScreen(
         }
     )
 
-    // 3. Crear el manejador de permisos
-    val cameraPermissionState = rememberPermissionState(
-        permission = Manifest.permission.CAMERA
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    // 3. Crear el lanzador para los permisos
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            hasCameraPermission = granted
+        }
     )
+
 
     Scaffold(
         topBar = {
@@ -160,12 +167,12 @@ fun AddNoteScreen(
             // 5. Botón para tomar la foto
             Button(
                 onClick = {
-                    if (cameraPermissionState.status == PermissionStatus.Granted) {
+                    if (hasCameraPermission) {
                         val newUri = createImageUri(context)
                         tempUri = newUri
                         cameraLauncher.launch(newUri)
                     } else {
-                        cameraPermissionState.launchPermissionRequest()
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -204,6 +211,10 @@ fun AddNoteScreenPreview() {
 
         // --- AÑADIDO: Mock para loginUser ---
         override suspend fun loginUser(loginRequest: LoginRequest): Response<LoginResponse> = Response.success(null)
+
+        override suspend fun createEvent(eventRequest: EventRequest): Response<EventResponse> = Response.success(null)
+
+        override suspend fun getUserEvents(ownerId: String): Response<List<EventResponse>> = Response.success(emptyList())
         // -----------------------------------
 
         // Métodos de Nota
