@@ -94,7 +94,9 @@ com.example.appagendita_grupo1
 
 
 
-<img width="417" height="617" alt="image" src="https://github.com/user-attachments/assets/52d4642b-aa68-45e6-8b0a-6b7e10b3b6fe" />
+
+<img width="323" height="625" alt="image" src="https://github.com/user-attachments/assets/c698d414-e902-47da-a479-3039839b4394" />
+
 
 
 
