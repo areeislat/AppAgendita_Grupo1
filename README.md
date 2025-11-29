@@ -36,7 +36,7 @@ El proyecto está dividido en dos grandes repositorios: Cliente (Android) y Serv
 * **UI:** Jetpack Compose (Material 3).
 * **Inyección de Dependencias:** **Hilt** (Dagger).
 * **Base de Datos Local:** Room (SQLite) para persistencia offline.
-* **Red:** **Retrofit** + Gson para consumo de APIs.
+* **Red:** **Retrofit** + Gson para consumo de APIs. 📖 [Ver Guía Completa de Retrofit](docs/RETROFIT_GUIDE.md)
 * **Seguridad:** EncryptedSharedPreferences (SessionManager).
 * **Arquitectura:** MVVM (Model-View-ViewModel) + Clean Architecture.
 
