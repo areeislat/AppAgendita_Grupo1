@@ -24,7 +24,7 @@ import com.example.appagendita_grupo1.data.local.user.UserEntity
         EventEntity::class,
         TaskEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(LocalDateTimeConverter::class)
@@ -73,18 +73,37 @@ abstract class AgendaVirtualDatabase : RoomDatabase() {
 
         private val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // Crear tabla de tareas
+                // Crear tabla de tareas (con campos complejos)
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS `tasks` (
                         `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         `title` TEXT NOT NULL,
                         `description` TEXT,
                         `userId` TEXT NOT NULL,
-                        `priority` TEXT NOT NULL,
-                        `category` TEXT NOT NULL,
+                        `priority` TEXT NOT NULL DEFAULT 'MEDIUM',
+                        `category` TEXT NOT NULL DEFAULT 'WORK',
                         `startDate` TEXT,
                         `startTime` TEXT,
                         `endTime` TEXT,
+                        `isCompleted` INTEGER NOT NULL DEFAULT 0,
+                        `createdAt` INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Simplificar tabla de tareas removiendo campos problemáticos
+                database.execSQL("DROP TABLE IF EXISTS `tasks`")
+                database.execSQL("""
+                    CREATE TABLE `tasks` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `title` TEXT NOT NULL,
+                        `description` TEXT,
+                        `userId` TEXT NOT NULL,
+                        `priority` TEXT NOT NULL DEFAULT 'MEDIUM',
+                        `category` TEXT NOT NULL DEFAULT 'WORK',
                         `isCompleted` INTEGER NOT NULL DEFAULT 0,
                         `createdAt` INTEGER NOT NULL
                     )
@@ -99,7 +118,7 @@ abstract class AgendaVirtualDatabase : RoomDatabase() {
                     AgendaVirtualDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance

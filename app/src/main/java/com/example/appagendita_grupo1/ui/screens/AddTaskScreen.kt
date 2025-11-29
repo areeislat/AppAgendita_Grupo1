@@ -226,14 +226,17 @@ fun AddTaskScreen(
 
             // Botón Guardar
             Button(
-                onClick = { viewModel.saveTask() },
+                onClick = { 
+                    println("DEBUG: Botón presionado - canSave: ${uiState.canSave}")
+                    viewModel.saveTask() 
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                enabled = uiState.canSave
+                enabled = uiState.canSave && !uiState.isLoading
             ) {
                 Text(
-                    text = "Guardar Tarea",
+                    text = if (uiState.isLoading) "Guardando..." else "Guardar Tarea",
                     style = MaterialTheme.typography.titleMedium
                 )
             }

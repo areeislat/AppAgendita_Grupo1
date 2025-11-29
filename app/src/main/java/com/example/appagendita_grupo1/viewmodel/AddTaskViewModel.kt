@@ -120,32 +120,32 @@ class AddTaskViewModel @Inject constructor(
     }
 
     fun saveTask() {
+        Log.d("AddTaskViewModel", "saveTask called - canSave: ${uiState.canSave}")
+        Log.d("AddTaskViewModel", "taskName: '${uiState.taskName}', timeError: ${uiState.timeError}")
+        
         if (!uiState.canSave) {
-            Log.w("AddTaskViewModel", "Cannot save task - validation failed")
+            Log.w("AddTaskViewModel", "Cannot save - validation failed")
             return
         }
 
-        Log.d("AddTaskViewModel", "Starting to save task: ${uiState.taskName}")
-        uiState = uiState.copy(saveError = null)
-
+        Log.d("AddTaskViewModel", "Starting save task process...")
+        uiState = uiState.copy(isLoading = true, saveError = null)
+        
         viewModelScope.launch {
             try {
-                Log.d("AddTaskViewModel", "Calling taskRepository.addTask")
+                Log.d("AddTaskViewModel", "Calling repository.addTask...")
                 taskRepository.addTask(
                     title = uiState.taskName.trim(),
                     description = if (uiState.description.isBlank()) null else uiState.description.trim(),
                     priority = uiState.priority.name,
-                    category = uiState.category.name,
-                    startDate = uiState.startDate,
-                    startTime = uiState.startTime,
-                    endTime = uiState.endTime
+                    category = uiState.category.name
                 )
-                Log.d("AddTaskViewModel", "Task saved successfully")
-                uiState = uiState.copy(isTaskSaved = true)
+                Log.d("AddTaskViewModel", "Task saved successfully, setting isTaskSaved = true")
+                uiState = uiState.copy(isTaskSaved = true, isLoading = false)
             } catch (e: Exception) {
-                Log.e("AddTaskViewModel", "Error saving task: ${e.message}")
+                Log.e("AddTaskViewModel", "Error saving task", e)
                 e.printStackTrace()
-                uiState = uiState.copy(saveError = "Error al guardar tarea: ${e.message}")
+                uiState = uiState.copy(saveError = "Error: ${e.message}", isLoading = false)
             }
         }
     }
@@ -158,6 +158,7 @@ data class AddTaskUiState(
     val priority: TaskPriority = TaskPriority.MEDIUM,
     val category: TaskCategory = TaskCategory.WORK,
     val isTaskSaved: Boolean = false,
+    val isLoading: Boolean = false,
     val saveError: String? = null,
     val startDate: LocalDate = LocalDate.now(),
     val startTime: LocalTime = LocalTime.now().withSecond(0).withNano(0),
@@ -170,7 +171,7 @@ data class AddTaskUiState(
     val taskNameError: String? = null,
     val timeError: String? = null
 ) {
-    val canSave: Boolean get() = taskName.isNotBlank() && timeError == null
+    val canSave: Boolean get() = taskName.isNotBlank()
 }
 
 data class SubtaskUiState(

@@ -167,6 +167,12 @@ class MainActivity : ComponentActivity() {
                             viewModel = hiltViewModel()
                         )
                     }
+                    composable(Routes.AddTask) {
+                        AddTaskScreen(
+                            viewModel = hiltViewModel(),
+                            onNavigateBack = { go(NavEvent.Back) }
+                        )
+                    }
                     composable(Routes.AddTeam) {
                         AddTeamScreen(
                             onBack = { go(NavEvent.Back) },

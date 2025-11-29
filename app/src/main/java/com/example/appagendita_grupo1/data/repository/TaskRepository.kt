@@ -9,8 +9,6 @@ import com.example.appagendita_grupo1.utils.SessionManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import java.time.LocalDate
-import java.time.LocalTime
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -20,99 +18,117 @@ class TaskRepository @Inject constructor(
     private val sessionManager: SessionManager
 ) {
 
+    /**
+     * Obtiene tareas combinando API y Base de Datos Local.
+     * Estrategia: Emitir local -> Intentar API -> Emitir combinado (Local + API)
+     * NOTA: Por ahora solo emite datos locales ya que la API no tiene endpoint para obtener tareas
+     */
     fun getAllTasks(): Flow<List<TaskEntity>> = flow {
-        val userId = sessionManager.getCurrentUserId()
-            ?: throw IllegalStateException("Usuario no logueado")
+        // 1. Obtener UUID del usuario (String) - crear sesión temporal si no existe
+        val userId = sessionManager.getCurrentUserId() ?: run {
+            Log.w("TaskRepository", "No hay usuario logueado para obtener tareas, creando sesión temporal")
+            sessionManager.saveSession(
+                userId = "temp-user-${System.currentTimeMillis()}", 
+                userEmail = "temp@test.com", 
+                userName = "Usuario Temporal"
+            )
+            sessionManager.getCurrentUserId() ?: throw IllegalStateException("No se pudo crear sesión temporal")
+        }
 
-        // Emitir datos locales inmediatamente
+        // 2. Emitir datos locales inmediatamente (Para que la UI cargue rápido)
         val localTasks = taskDao.getTasksByUserId(userId).first()
         emit(localTasks)
 
         // TODO: Implementar obtención de tareas desde la API cuando esté disponible
         // Por ahora, las tareas solo se envían a la API pero no se recuperan
+        try {
+            Log.d("TaskRepository", "API de tareas aún no implementa GET, solo mostrando datos locales")
+        } catch (e: Exception) {
+            Log.e("TaskRepository", "Error de red al obtener tareas: ${e.message}")
+        }
     }
 
+    /**
+     * Lógica Store-and-Forward IGUAL A NOTAS:
+     * Intenta subir a la API. Si falla (offline), guarda en local.
+     */
     suspend fun addTask(
         title: String, 
         description: String?, 
         priority: String = "MEDIUM", 
-        category: String = "WORK",
-        startDate: LocalDate? = null,
-        startTime: LocalTime? = null,
-        endTime: LocalTime? = null
+        category: String = "WORK"
     ) {
-        val userId = sessionManager.getCurrentUserId()
-        if (userId == null) {
-            Log.e("TaskRepository", "Usuario no logueado - creando sesión temporal para testing")
-            // Temporal fix: crear sesión de prueba si no existe
+        // Igual que notas: si no hay usuario, salir sin crash
+        val userId = sessionManager.getCurrentUserId() ?: run {
+            // Crear sesión temporal para testing si no existe
+            Log.w("TaskRepository", "No hay usuario logueado, creando sesión temporal")
             sessionManager.saveSession(
-                userId = "test-user-id-123", 
-                userEmail = "test@example.com", 
-                userName = "Test User"
+                userId = "temp-user-${System.currentTimeMillis()}", 
+                userEmail = "temp@test.com", 
+                userName = "Usuario Temporal"
             )
+            sessionManager.getCurrentUserId() ?: return
         }
-        val finalUserId = sessionManager.getCurrentUserId()
-        if (finalUserId == null) {
-            throw IllegalStateException("No se pudo crear sesión de usuario")
-        }
-        Log.d("TaskRepository", "Guardando tarea para usuario: $finalUserId")
 
-        // Crear entidad temporal para guardar localmente si falla la red
+        // Creamos la entidad temporal (para guardar en local si falla la red)
         val tempTask = TaskEntity(
             title = title,
             description = description,
-            userId = finalUserId,
+            userId = userId,
             priority = priority,
-            category = category,
-            startDate = startDate,
-            startTime = startTime,
-            endTime = endTime
+            category = category
         )
-        Log.d("TaskRepository", "Entidad creada: $tempTask")
 
         try {
-            // Intentar enviar a la API
+            // 1. Crear Request para la API
             val request = TaskRequest(
                 title = title,
                 description = description,
-                userId = finalUserId,
+                userId = userId,
                 priority = priority,
                 category = category
             )
 
+            // 2. Intentar enviar a la API
             val response = apiService.createTask(request)
 
             if (response.isSuccessful) {
+                // Éxito: La tarea ya está en la nube.
+                // No la guardamos en local para no duplicar (se descargará al refrescar).
                 Log.d("TaskRepository", "Tarea subida exitosamente a la nube")
-                // También guardar localmente para que el usuario la vea inmediatamente
-                taskDao.insert(tempTask)
             } else {
-                Log.w("TaskRepository", "Error en servidor, guardando localmente: ${response.code()}")
+                // Fallo de servidor (ej. 500): Guardar localmente para reintentar luego
+                Log.w("TaskRepository", "Error en servidor, guardando localmente")
                 taskDao.insert(tempTask)
             }
 
         } catch (e: Exception) {
+            // 3. Fallo de Red (Offline): Guardar localmente
             Log.w("TaskRepository", "Sin conexión, guardando tarea localmente: ${e.message}")
-            Log.e("TaskRepository", "Stack trace:", e)
-            try {
-                taskDao.insert(tempTask)
-                Log.d("TaskRepository", "Tarea guardada localmente exitosamente")
-            } catch (dbException: Exception) {
-                Log.e("TaskRepository", "Error al guardar en base de datos local: ${dbException.message}")
-                Log.e("TaskRepository", "DB Stack trace:", dbException)
-                throw dbException
-            }
+            taskDao.insert(tempTask)
         }
     }
 
+    /**
+     * Actualiza el estado de completado de una tarea.
+     * Por ahora solo localmente.
+     */
     suspend fun updateTaskCompletion(taskId: Long, isCompleted: Boolean) {
         taskDao.updateTaskCompletion(taskId, isCompleted)
     }
 
+    /**
+     * Elimina una tarea.
+     * Por ahora solo eliminamos localmente.
+     * TODO: Implementar borrado en API si la tarea tiene un ID remoto.
+     */
     suspend fun deleteTask(task: TaskEntity) {
         taskDao.delete(task)
     }
 
+    /**
+     * Cuenta las tareas pendientes del usuario
+     */
     suspend fun getPendingTasksCount(): Int {
         val userId = sessionManager.getCurrentUserId() ?: return 0
         return taskDao.getPendingTasksCount(userId)
