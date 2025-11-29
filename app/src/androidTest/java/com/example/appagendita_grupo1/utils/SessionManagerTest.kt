@@ -36,7 +36,8 @@ class SessionManagerTest {
     @Test
     fun testSaveSession() {
         // Given
-        val userId = 123L
+        // CAMBIO: userId ahora es un String (UUID)
+        val userId = "user-uuid-123"
         val userEmail = "test@example.com"
         val userName = "Test User"
 
@@ -53,7 +54,8 @@ class SessionManagerTest {
     @Test
     fun testClearSession() {
         // Given - save a session first
-        sessionManager.saveSession(123L, "test@example.com", "Test User")
+        // CAMBIO: userId String
+        sessionManager.saveSession("user-uuid-123", "test@example.com", "Test User")
         assertTrue(sessionManager.isLoggedIn())
 
         // When
@@ -72,7 +74,8 @@ class SessionManagerTest {
         assertFalse(sessionManager.isSessionValid())
 
         // Save a session
-        sessionManager.saveSession(123L, "test@example.com", "Test User")
+        // CAMBIO: userId String
+        sessionManager.saveSession("user-uuid-123", "test@example.com", "Test User")
 
         // Now session should be valid
         assertTrue(sessionManager.isSessionValid())
@@ -88,7 +91,7 @@ class SessionManagerTest {
     fun testGetCurrentUserIdWhenNotLoggedIn() {
         // When no session exists
         assertFalse(sessionManager.isLoggedIn())
-        
+
         // Then getCurrentUserId should return null
         assertNull(sessionManager.getCurrentUserId())
     }
@@ -96,7 +99,8 @@ class SessionManagerTest {
     @Test
     fun testSessionPersistence() {
         // Given - save a session
-        val userId = 456L
+        // CAMBIO: userId String
+        val userId = "user-uuid-456"
         val userEmail = "persist@example.com"
         val userName = "Persist User"
         sessionManager.saveSession(userId, userEmail, userName)
