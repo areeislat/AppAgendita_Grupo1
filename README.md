@@ -94,9 +94,8 @@ com.example.appagendita_grupo1
 
 
 
-
-<img width="323" height="625" alt="image" src="https://github.com/user-attachments/assets/c698d414-e902-47da-a479-3039839b4394" />
-
+![Captura del APK firmado y el jks](https://github.com/user-attachments/assets/6fbadf3a-4ef9-44e3-9311-a148e04662ec)
 
 
+![Captura del APK firmado y el jks](https://github.com/user-attachments/assets/ee4e0c76-d395-4afc-9c48-1baf3067b253)
 
