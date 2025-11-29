@@ -18,19 +18,7 @@ import com.example.appagendita_grupo1.viewmodel.TaskPriority
 import com.example.appagendita_grupo1.viewmodel.TaskCategory
 import com.example.appagendita_grupo1.ui.theme.AppAgendita_Grupo1Theme
 
-// --- IMPORTS PARA LA PREVIEW ---
-import com.example.appagendita_grupo1.data.remote.ApiService
-import com.example.appagendita_grupo1.data.remote.request.EventRequest
-import com.example.appagendita_grupo1.data.remote.request.TaskRequest
-import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
-import com.example.appagendita_grupo1.data.remote.response.EventResponse
-import com.example.appagendita_grupo1.data.remote.response.UserResponse
-import com.example.appagendita_grupo1.data.remote.request.NoteRequest
-import com.example.appagendita_grupo1.data.remote.response.NoteResponse
-import com.example.appagendita_grupo1.data.remote.request.LoginRequest
-import com.example.appagendita_grupo1.data.remote.response.LoginResponse
-import com.example.appagendita_grupo1.utils.SessionManager
-import retrofit2.Response
+// Imports removed - preview disabled
 // ------------------------------
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -255,31 +243,5 @@ fun AddTaskScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AddTaskScreenPreview() {
-    val context = LocalContext.current
-
-    // --- CORRECCIÓN DE PREVIEW ---
-    val fakeApiService = object : ApiService {
-        override suspend fun createTask(taskRequest: TaskRequest): Response<Unit> = Response.success(Unit)
-        override suspend fun registerUser(registerRequest: RegisterRequest): Response<UserResponse> = Response.success(null)
-        override suspend fun loginUser(loginRequest: LoginRequest): Response<LoginResponse> = Response.success(null)
-        override suspend fun getUserNotes(userId: String): Response<List<NoteResponse>> = Response.success(emptyList())
-        override suspend fun createNote(noteRequest: NoteRequest): Response<NoteResponse> = Response.success(null)
-        override suspend fun deleteNote(noteId: String, userId: String): Response<Map<String, String>> = Response.success(emptyMap())
-        override suspend fun updateNote(noteId: String, userId: String, noteRequest: NoteRequest): Response<NoteResponse> = Response.success(null)
-        override suspend fun createEvent(eventRequest: EventRequest): Response<EventResponse> = Response.success(null)
-        override suspend fun getUserEvents(ownerId: String): Response<List<EventResponse>> = Response.success(emptyList())
-    }
-
-    val fakeSessionManager = SessionManager.getInstance(context)
-    val previewViewModel = AddTaskViewModel(fakeApiService, fakeSessionManager)
-
-    AppAgendita_Grupo1Theme {
-        AddTaskScreen(
-            viewModel = previewViewModel,
-            onNavigateBack = {}
-        )
-    }
-}
+// Preview temporarily disabled due to architecture changes
+// TODO: Re-enable preview with proper TaskRepository mock

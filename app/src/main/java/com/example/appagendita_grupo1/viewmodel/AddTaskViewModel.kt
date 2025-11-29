@@ -1,29 +1,22 @@
 package com.example.appagendita_grupo1.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appagendita_grupo1.data.remote.ApiService
-import com.example.appagendita_grupo1.data.remote.request.TaskRequest
-import com.example.appagendita_grupo1.di.TaskApi
-import com.example.appagendita_grupo1.utils.SessionManager
+import com.example.appagendita_grupo1.data.repository.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
-
-
-import javax.inject.Named
 @HiltViewModel
-
 class AddTaskViewModel @Inject constructor(
-    @Named("taskApi") private val apiService: ApiService,
-    private val sessionManager: SessionManager
+    private val taskRepository: TaskRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(AddTaskUiState())
@@ -127,30 +120,32 @@ class AddTaskViewModel @Inject constructor(
     }
 
     fun saveTask() {
-        if (!uiState.canSave) return
+        if (!uiState.canSave) {
+            Log.w("AddTaskViewModel", "Cannot save task - validation failed")
+            return
+        }
+
+        Log.d("AddTaskViewModel", "Starting to save task: ${uiState.taskName}")
+        uiState = uiState.copy(saveError = null)
 
         viewModelScope.launch {
             try {
-                val userId = sessionManager.getCurrentUserId() ?: return@launch
-
-                val request = TaskRequest(
-                    title = uiState.taskName,
-                    description = uiState.description,
-                    userId = userId,
-                    // Enviamos el nombre del enum (ej: "WORK", "HIGH") que es lo que espera Spring Boot
+                Log.d("AddTaskViewModel", "Calling taskRepository.addTask")
+                taskRepository.addTask(
+                    title = uiState.taskName.trim(),
+                    description = if (uiState.description.isBlank()) null else uiState.description.trim(),
                     priority = uiState.priority.name,
-                    category = uiState.category.name
+                    category = uiState.category.name,
+                    startDate = uiState.startDate,
+                    startTime = uiState.startTime,
+                    endTime = uiState.endTime
                 )
-
-                val response = apiService.createTask(request)
-                if (response.isSuccessful) {
-                    uiState = uiState.copy(isTaskSaved = true)
-                } else {
-                    uiState = uiState.copy(saveError = "Error al guardar: ${response.code()}")
-                }
+                Log.d("AddTaskViewModel", "Task saved successfully")
+                uiState = uiState.copy(isTaskSaved = true)
             } catch (e: Exception) {
+                Log.e("AddTaskViewModel", "Error saving task: ${e.message}")
                 e.printStackTrace()
-                uiState = uiState.copy(saveError = "Error de conexión: ${e.message}")
+                uiState = uiState.copy(saveError = "Error al guardar tarea: ${e.message}")
             }
         }
     }
