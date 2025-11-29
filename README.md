@@ -83,3 +83,18 @@ com.example.appagendita_grupo1
 ├── ui/                 # Pantallas y Componentes (Compose)
 ├── utils/              # SessionManager (Preferencias Encriptadas)
 └── viewmodel/          # ViewModels (HiltViewModel)
+
+
+##**Captura del APK firmado y .jks:**
+
+
+
+
+
+
+
+
+<img width="417" height="617" alt="image" src="https://github.com/user-attachments/assets/52d4642b-aa68-45e6-8b0a-6b7e10b3b6fe" />
+
+
+
