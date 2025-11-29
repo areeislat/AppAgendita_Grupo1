@@ -34,31 +34,48 @@ class AddNoteViewModel @Inject constructor(
     fun onSaveNote() {
         if (!validate()) return
 
-        // Lanzar corrutina
         viewModelScope.launch {
             try {
-                // CAMBIO: Llamamos al método del repositorio con los parámetros individuales
-                // Convertimos la URI a String si existe
                 repository.addNote(
                     title = state.title.trim(),
                     description = state.description.trim(),
                     imageUri = state.imageUri?.toString()
                 )
-                // Aquí podrías emitir un evento de "Guardado Exitoso" si quisieras navegar atrás automáticamente
+                state = state.copy(isNoteSaved = true)
             } catch (e: Exception) {
-                // Manejo de error si algo falla críticamente (aunque el repo ya captura la mayoría)
+                // Handle critical errors if the repository doesn't
                 e.printStackTrace()
             }
         }
     }
 
-    fun validate(): Boolean {
+    private fun validate(): Boolean {
         var isValid = true
         if (state.title.isBlank()) {
             state = state.copy(titleError = "El título no puede estar vacío")
             isValid = false
         }
-        // La descripción es opcional
         return isValid
     }
+
+    // Dentro de la clase AddNoteViewModel
+
+    fun onSaveClicked(onSuccess: () -> Unit) {
+        // Llama a la función privada `validate`
+        if (validate()) {
+            // Si la validación es correcta, llama a `onSaveNote`
+            onSaveNote()
+            // Y finalmente, ejecuta la acción `onSuccess` (que es `onNoteSaved` en la pantalla)
+            onSuccess()
+        }
+    }
+
+data class AddNoteState(
+    val title: String = "",
+    val titleError: String? = null,
+    val description: String = "",
+    val descriptionError: String? = null,
+    val imageUri: Uri? = null,
+    val isNoteSaved: Boolean = false
+) 
 }

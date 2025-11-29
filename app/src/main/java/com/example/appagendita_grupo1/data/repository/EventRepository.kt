@@ -14,9 +14,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+import javax.inject.Named
+
 class EventRepository @Inject constructor(
     private val eventDao: EventDao,
-    private val apiService: ApiService,
+    @Named("eventApi") private val apiService: ApiService,
     private val sessionManager: SessionManager
 ) {
 

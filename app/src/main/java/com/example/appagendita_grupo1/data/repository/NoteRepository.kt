@@ -6,15 +6,18 @@ import com.example.appagendita_grupo1.data.local.note.NoteEntity
 import com.example.appagendita_grupo1.data.remote.ApiService
 import com.example.appagendita_grupo1.data.remote.request.NoteRequest
 import com.example.appagendita_grupo1.data.remote.response.NoteResponse
+import com.example.appagendita_grupo1.di.NoteApi
 import com.example.appagendita_grupo1.utils.SessionManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
+import javax.inject.Named
+
 class NoteRepository @Inject constructor(
     private val noteDao: NoteDao,
-    private val apiService: ApiService,
+    @Named("noteApi") private val apiService: ApiService,
     private val sessionManager: SessionManager
 ) {
 

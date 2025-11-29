@@ -1,10 +1,13 @@
 package com.example.appagendita_grupo1.viewmodel
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.appagendita_grupo1.data.repository.NoteRepository
+import javax.inject.Inject
 
-class AddNoteViewModelFactory(
+
+class AddNoteViewModelFactory @Inject constructor(
     private val repository: NoteRepository
 ) : ViewModelProvider.Factory {
 

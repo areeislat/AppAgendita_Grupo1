@@ -16,25 +16,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    @Provides
-    @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): AgendaVirtualDatabase {
-        return AgendaVirtualDatabase.getInstance(context)
-    }
+    // Eliminado provideDatabase para evitar duplicidad con AppModule
 
-    @Provides
-    fun provideNoteDao(database: AgendaVirtualDatabase): NoteDao {
-        return database.noteDao()
-    }
+    // Eliminado provideNoteDao para evitar duplicidad con AppModule
 
-    @Provides
-    fun provideUserDao(database: AgendaVirtualDatabase): UserDao {
-        return database.userDao()
-    }
+    // Eliminado provideUserDao para evitar duplicidad con AppModule
 
-    @Provides
-    @Singleton
-    fun provideSessionManager(@ApplicationContext context: Context): SessionManager {
-        return SessionManager.getInstance(context)
-    }
+    // Eliminado provideSessionManager para evitar duplicidad con AppModule
 }

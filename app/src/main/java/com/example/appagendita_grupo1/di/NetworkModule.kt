@@ -7,14 +7,29 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import javax.inject.Named
 
 @Module
 @InstallIn(SingletonComponent::class) // Este módulo vivirá mientras la app viva
 object NetworkModule {
 
     @Provides
-    @Singleton // Crea una única instancia para toda la app
-    fun provideApiService(): ApiService {
-        return RetrofitClient.instance
-    }
+    @Singleton
+    @Named("userApi")
+    fun provideUserApiService(): ApiService = RetrofitClient.userApi
+
+    @Provides
+    @Singleton
+    @Named("taskApi")
+    fun provideTaskApiService(): ApiService = RetrofitClient.taskApi
+
+    @Provides
+    @Singleton
+    @Named("noteApi")
+    fun provideNoteApiService(): ApiService = RetrofitClient.noteApi
+
+    @Provides
+    @Singleton
+    @Named("eventApi")
+    fun provideEventApiService(): ApiService = RetrofitClient.eventApi
 }

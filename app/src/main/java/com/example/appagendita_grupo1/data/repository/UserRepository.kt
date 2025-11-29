@@ -8,15 +8,18 @@ import com.example.appagendita_grupo1.data.remote.request.LoginRequest
 import com.example.appagendita_grupo1.data.remote.request.RegisterRequest
 import com.example.appagendita_grupo1.data.remote.response.LoginResponse
 import com.example.appagendita_grupo1.data.remote.response.UserResponse
+import com.example.appagendita_grupo1.di.UserApi
 import javax.inject.Inject
 
 /**
  * Repositorio encargado de la autenticación y gestión de usuarios vía API.
  * Mantiene una caché local básica mediante UserDao.
  */
+import javax.inject.Named
+
 class UserRepository @Inject constructor(
     private val userDao: UserDao,
-    private val apiService: ApiService
+    @Named("userApi") private val apiService: ApiService
 ) {
 
     companion object {

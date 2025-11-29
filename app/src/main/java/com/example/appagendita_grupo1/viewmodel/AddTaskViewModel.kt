@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appagendita_grupo1.data.remote.ApiService
 import com.example.appagendita_grupo1.data.remote.request.TaskRequest
+import com.example.appagendita_grupo1.di.TaskApi
 import com.example.appagendita_grupo1.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,9 +17,12 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
+
+import javax.inject.Named
 @HiltViewModel
+
 class AddTaskViewModel @Inject constructor(
-    private val apiService: ApiService,
+    @Named("taskApi") private val apiService: ApiService,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 

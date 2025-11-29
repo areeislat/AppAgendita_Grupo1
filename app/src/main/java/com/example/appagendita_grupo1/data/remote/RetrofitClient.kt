@@ -8,10 +8,11 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    // Gateway - todas las peticiones van al puerto 8080
-    // Para dispositivo físico: usar IP local de la computadora en la red WiFi
-    // Para emulador: cambiar a "http://10.0.2.2:8080/"
-    private const val BASE_URL = "http://192.168.100.25:8080/"
+    // URLs de cada microservicio
+    private const val USER_BASE_URL = "https://msvc-user-749990022458.us-central1.run.app/"
+    private const val TASK_BASE_URL = "https://msvc-task-749990022458.us-central1.run.app/"
+    private const val NOTE_BASE_URL = "https://msvc-note-749990022458.us-central1.run.app/"
+    private const val EVENT_BASE_URL = "https://msvc-event-749990022458.us-central1.run.app/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -24,12 +25,39 @@ object RetrofitClient {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    val instance: ApiService by lazy {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+    val userApi: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(USER_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        retrofit.create(ApiService::class.java)
+            .create(ApiService::class.java)
+    }
+
+    val taskApi: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(TASK_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+
+    val noteApi: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(NOTE_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+
+    val eventApi: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(EVENT_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
 }

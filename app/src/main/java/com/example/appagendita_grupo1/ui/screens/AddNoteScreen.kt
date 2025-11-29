@@ -13,6 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -184,10 +186,10 @@ fun AddNoteScreen(
 
             Button(
                 onClick = {
-                    if (viewModel.validate()) {
-                        viewModel.onSaveNote()
-                        onNoteSaved()
-                    }
+                    // CÓDIGO CORREGIDO AQUÍ:
+                    // Llamamos a la nueva función pública que crearemos en el ViewModel.
+                    // Esta función se encargará de validar y guardar.
+                    viewModel.onSaveClicked(onSuccess = onNoteSaved)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
